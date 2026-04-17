@@ -19,12 +19,25 @@ export type CreateProjectRecordInput = {
   type: ProjectTypeValue;
 };
 
+export type UpdateProjectRecordInput = {
+  name?: string;
+  description?: string | null;
+  type?: ProjectTypeValue;
+  status?: ProjectDocument["status"];
+  alertEnabled?: boolean;
+};
+
 export interface ProjectRepository {
   accountExists(accountId: string): Promise<boolean>;
   findById(projectId: string): Promise<ProjectRecord | null>;
   findByName(accountId: string, name: string): Promise<ProjectRecord | null>;
   listByAccountId(accountId: string): Promise<ProjectRecord[]>;
   create(input: CreateProjectRecordInput): Promise<ProjectRecord>;
+  update(
+    project: ProjectRecord,
+    input: UpdateProjectRecordInput,
+  ): Promise<ProjectRecord>;
+  delete(project: ProjectRecord): Promise<void>;
 }
 
 export class CosmosProjectRepository implements ProjectRepository {
@@ -118,5 +131,27 @@ export class CosmosProjectRepository implements ProjectRepository {
     }
 
     return resource;
+  }
+
+  async update(project: ProjectRecord, input: UpdateProjectRecordInput) {
+    const updatedProject: ProjectDocument = {
+      ...project,
+      ...input,
+      updatedAt: new Date().toISOString(),
+    };
+
+    const { resource } = await this.projectsContainer
+      .item(project.id, project.accountId)
+      .replace<ProjectDocument>(updatedProject);
+
+    if (!resource) {
+      throw new Error("Project update returned no resource.");
+    }
+
+    return resource;
+  }
+
+  async delete(project: ProjectRecord) {
+    await this.projectsContainer.item(project.id, project.accountId).delete();
   }
 }

@@ -1,8 +1,14 @@
-import { GET } from "@/app/api/projects/[projectId]/route";
+import {
+  DELETE,
+  GET,
+  PATCH,
+} from "@/app/api/projects/[projectId]/route";
 import { ProjectServiceError } from "@/lib/services/project-service";
 
 const mockService = {
   getProject: vi.fn(),
+  updateProject: vi.fn(),
+  deleteProject: vi.fn(),
 };
 
 vi.mock("@/lib/services/project-service", async () => {
@@ -55,5 +61,55 @@ describe("projects/[projectId] route", () => {
     await expect(response.json()).resolves.toEqual({
       error: "Project not found.",
     });
+  });
+
+  it("updates a project through patch", async () => {
+    mockService.updateProject.mockResolvedValue({
+      id: "project_1",
+      name: "Updated Launch",
+      type: "task",
+      status: "archived",
+    });
+
+    const response = await PATCH(
+      new Request("http://localhost/api/projects/project_1", {
+        method: "PATCH",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          name: "Updated Launch",
+          status: "archived",
+        }),
+      }),
+      {
+        params: Promise.resolve({ projectId: "project_1" }),
+      },
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({
+      project: {
+        id: "project_1",
+        name: "Updated Launch",
+        type: "task",
+        status: "archived",
+      },
+    });
+  });
+
+  it("deletes a project through delete", async () => {
+    mockService.deleteProject.mockResolvedValue(undefined);
+
+    const response = await DELETE(
+      new Request("http://localhost/api/projects/project_1", {
+        method: "DELETE",
+      }),
+      {
+        params: Promise.resolve({ projectId: "project_1" }),
+      },
+    );
+
+    expect(response.status).toBe(204);
   });
 });
