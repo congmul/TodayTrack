@@ -6,6 +6,10 @@ export const metadata: Metadata = {
   title: "TodayTrack",
   description: "Mobile-first project task management with a focused today view.",
   manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "/icon.svg",
+    apple: "/apple-icon.svg",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

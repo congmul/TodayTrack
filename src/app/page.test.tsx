@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import Home from "@/app/page";
 
 describe("Home", () => {
-  it("renders the MVP positioning copy", () => {
+  it("renders the route-first landing copy", () => {
     render(<Home />);
 
     expect(
@@ -12,24 +12,18 @@ describe("Home", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders the primary today section and task cards", () => {
+  it("links to the dedicated feature routes", () => {
     render(<Home />);
 
+    expect(screen.getByRole("link", { name: /daily task view/i })).toHaveAttribute(
+      "href",
+      "/today",
+    );
     expect(
-      screen.getByRole("heading", { name: "Today's tasks" }),
-    ).toBeInTheDocument();
-    expect(screen.getByText("Spring Launch")).toBeInTheDocument();
+      screen.getByRole("link", { name: /project list and summaries/i }),
+    ).toHaveAttribute("href", "/projects");
     expect(
-      screen.getByText("Confirm final banner copy with the product team"),
-    ).toBeInTheDocument();
-  });
-
-  it("renders primary navigation labels for the mobile-first shell", () => {
-    render(<Home />);
-
-    expect(screen.getByRole("navigation", { name: "Primary" })).toBeInTheDocument();
-    expect(screen.getByText("Today")).toBeInTheDocument();
-    expect(screen.getByText("Projects")).toBeInTheDocument();
-    expect(screen.getByText("History")).toBeInTheDocument();
+      screen.getByRole("link", { name: /completion analytics preview/i }),
+    ).toHaveAttribute("href", "/history");
   });
 });

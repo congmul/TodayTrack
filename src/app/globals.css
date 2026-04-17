@@ -53,6 +53,11 @@ select {
   padding: 1.25rem 1rem 3rem;
 }
 
+.app-stack {
+  display: grid;
+  gap: 1rem;
+}
+
 .app-frame {
   margin: 0 auto;
   max-width: var(--max-width);
@@ -309,6 +314,39 @@ select {
   display: none;
 }
 
+.route-list-panel,
+.section-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.route-list,
+.project-list,
+.history-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.route-link {
+  display: grid;
+  gap: 0.3rem;
+  padding: 1rem;
+  border: 1px solid rgba(217, 203, 184, 0.85);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.page-title {
+  margin: 0.5rem 0 0;
+  font-size: clamp(2rem, 7vw, 3.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
+
+.compact-stack {
+  margin-top: 0;
+}
+
 @media (min-width: 768px) {
   .page-shell {
     padding: 1.5rem 1.5rem 3rem;
@@ -324,6 +362,11 @@ select {
   }
 
   .tasks-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .project-list,
+  .history-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
