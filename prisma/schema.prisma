@@ -1,0 +1,165 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum ProjectType {
+  HABIT
+  TASK
+}
+
+enum ProjectStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum TaskStatus {
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum AlertPreference {
+  INHERIT
+  ENABLED
+  DISABLED
+}
+
+enum TaskOccurrenceStatus {
+  PENDING
+  COMPLETED
+  MISSED
+  SKIPPED
+}
+
+enum TaskHistoryEventType {
+  CREATED
+  UPDATED
+  COMPLETED
+  REOPENED
+  DUE_DATE_CHANGED
+  REPEAT_RULE_CHANGED
+  OCCURRENCE_COMPLETED
+  OCCURRENCE_MISSED
+  ALERT_PREFERENCE_CHANGED
+  ARCHIVED
+  RESTORED
+}
+
+model Account {
+  id        String    @id @default(cuid())
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  users     User[]
+  projects  Project[]
+}
+
+model User {
+  id            String        @id @default(cuid())
+  accountId     String
+  email         String
+  name          String
+  role          UserRole      @default(MEMBER)
+  timezone      String        @default("America/Los_Angeles")
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  account       Account       @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  createdTasks  Task[]        @relation("TaskCreatedBy")
+  assignedTasks Task[]        @relation("TaskAssignedTo")
+  histories     TaskHistory[] @relation("TaskHistoryChangedBy")
+
+  @@unique([accountId, email])
+  @@index([accountId])
+}
+
+model Project {
+  id            String        @id @default(cuid())
+  accountId     String
+  name          String
+  description   String?
+  type          ProjectType
+  status        ProjectStatus @default(ACTIVE)
+  alertEnabled  Boolean       @default(false)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  account       Account       @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  tasks         Task[]
+
+  @@index([accountId, type])
+  @@index([accountId, status])
+}
+
+model Task {
+  id               String            @id @default(cuid())
+  projectId        String
+  title            String
+  description      String?
+  status           TaskStatus        @default(ACTIVE)
+  priority         TaskPriority      @default(MEDIUM)
+  dueDate          DateTime?         @db.Date
+  repeatRule       Json?
+  completedAt      DateTime?
+  alertPreference  AlertPreference   @default(INHERIT)
+  createdById      String?
+  assignedToId     String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  project          Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdBy        User?             @relation("TaskCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  assignedTo       User?             @relation("TaskAssignedTo", fields: [assignedToId], references: [id], onDelete: SetNull)
+  occurrences      TaskOccurrence[]
+  history          TaskHistory[]
+
+  @@index([projectId, status])
+  @@index([projectId, dueDate])
+  @@index([projectId, completedAt])
+}
+
+model TaskOccurrence {
+  id             String               @id @default(cuid())
+  taskId         String
+  scheduledDate  DateTime             @db.Date
+  status         TaskOccurrenceStatus @default(PENDING)
+  completedAt    DateTime?
+  missedAt       DateTime?
+  sourceTimezone String
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  task           Task                 @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, scheduledDate])
+  @@index([scheduledDate, status])
+  @@index([taskId, status])
+}
+
+model TaskHistory {
+  id          String               @id @default(cuid())
+  taskId      String
+  changedById String?
+  eventType   TaskHistoryEventType
+  oldValue    Json?
+  newValue    Json?
+  createdAt   DateTime             @default(now())
+  task        Task                 @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  changedBy   User?                @relation("TaskHistoryChangedBy", fields: [changedById], references: [id], onDelete: SetNull)
+
+  @@index([taskId, createdAt])
+  @@index([changedById])
+}
