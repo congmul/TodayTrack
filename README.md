@@ -1,6 +1,13 @@
 # TodayTrack
 
-This repository keeps the working product plan in [docs/Project_Tasks_App_Plan.md](/Users/jehyunjung/Documents/personal-projects/TodayTrack/docs/Project_Tasks_App_Plan.md).
+This repository keeps the working product plan in [docs/Project_Tasks_App_Plan.md](./docs/Project_Tasks_App_Plan.md).
+
+Contribution rules live in [docs/CONTRIBUTING.md](./docs/CONTRIBUTING.md).
+
+Area-specific notes live in:
+- [docs/FRONTEND.md](./docs/FRONTEND.md)
+- [docs/BACKEND.md](./docs/BACKEND.md)
+- [docs/PIPELINE.md](./docs/PIPELINE.md)
 
 Current product direction:
 - Mobile-first task management experience
