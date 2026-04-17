@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { PrimaryNav } from "@/components/primary-nav";
-import { getDashboardPreview } from "@/lib/dashboard-preview";
+import { listProjectPreviews } from "@/lib/project-preview";
 import styles from "./projects-view.module.css";
 
 export function ProjectsView() {
-  const preview = getDashboardPreview();
+  const projects = listProjectPreviews();
 
   return (
     <main className="page-shell">
@@ -26,37 +26,33 @@ export function ProjectsView() {
         </section>
 
         <section className={styles.projectList}>
-          <article className="task-card">
-            <div className="task-topline">
-              <h2>{preview.projectName}</h2>
-              <span className="badge warm">Active</span>
-            </div>
-            <p className="section-copy">
-              The launch project driving the current daily queue and completion
-              metrics.
-            </p>
-            <div className="badge-row">
-              {preview.summary.map((item) => (
-                <span className="badge neutral" key={item.label}>
-                  {item.label}: {item.value}
+          {projects.map((project) => (
+            <article className="task-card" key={project.id}>
+              <div className="task-topline">
+                <h2>{project.name}</h2>
+                <span
+                  className={`badge${project.status === "active" ? " warm" : ""}`}
+                >
+                  {project.status === "active" ? "Active" : "Planning"}
                 </span>
-              ))}
-            </div>
-          </article>
-
-          <article className="task-card">
-            <div className="task-topline">
-              <h2>Operations Refresh</h2>
-              <span className="badge">Planning</span>
-            </div>
-            <p className="section-copy">
-              Secondary project placeholder for upcoming project list behavior.
-            </p>
-            <div className="badge-row">
-              <span className="badge neutral">Tasks: 12</span>
-              <span className="badge neutral">Due this week</span>
-            </div>
-          </article>
+              </div>
+              <p className="section-copy">{project.description}</p>
+              <div className="badge-row">
+                <span className="badge neutral">Type: {project.type}</span>
+                {project.summary.map((item) => (
+                  <span className="badge neutral" key={item}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <Link
+                className={styles.detailLink}
+                href={`/projects/${project.id}`}
+              >
+                Open project detail
+              </Link>
+            </article>
+          ))}
         </section>
 
         <PrimaryNav currentPath="/projects" />
