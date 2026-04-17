@@ -17,10 +17,12 @@ This document keeps simple backend structure notes for TodayTrack.
 
 ## Data Rules
 
-- Use Prisma as the ORM layer
-- Use PostgreSQL as the main database
+- Use Azure Cosmos DB for NoSQL as the main database
+- Model data explicitly as documents and containers
+- Keep partition-key choices intentional and stable
+- Put data access behind repository or service boundaries
 - Keep history data reliable because analytics depend on it
-- Prefer explicit schema changes through migrations
+- Prefer explicit schema definitions in code and docs
 
 ## Backend Quality Notes
 

@@ -107,8 +107,8 @@ Because you want FE and BE in one place, the simplest approach is a monorepo wit
 
 - Frontend: Next.js
 - Backend: Next.js API routes or Route Handlers
-- Database: PostgreSQL
-- ORM: Prisma
+- Database: Azure Cosmos DB for NoSQL
+- Data access: Azure Cosmos DB JavaScript SDK with repository/service layers
 - UI: React with a component library or custom UI
 - Charts: Recharts
 - Auth: Azure AD B2C or a simpler email-based auth for early MVP
@@ -121,11 +121,12 @@ Why this is a good fit:
 - GitHub Actions support is mature
 - Good path from MVP to production
 - PWA support can be added cleanly in the same app
+- Cosmos DB free tier can support low-cost development
 
 ### Alternative Stack
 
 - Frontend + backend in one repo using React + Node/Express
-- Database: PostgreSQL
+- Database: Azure Cosmos DB for NoSQL
 - Host FE and BE separately on Azure
 
 This works, but it adds more deployment and routing complexity than a Next.js full-stack app.
@@ -141,7 +142,6 @@ project-root/
   app/
   components/
   lib/
-  prisma/
   public/
   src/
   docs/
@@ -161,7 +161,7 @@ project-root/
 
 - UI calls internal API
 - API validates account and project access
-- API reads and writes tasks in PostgreSQL
+- API reads and writes documents in Azure Cosmos DB for NoSQL
 - Task status changes also create history events
 - Analytics page reads aggregated history data
 - Client caches key assets and selected read flows for PWA support
@@ -170,14 +170,18 @@ project-root/
 
 ## Data Model Proposal
 
+The current direction is a Cosmos DB document model rather than a relational schema.
+
 ### Account
 
 - id
+- kind = `account`
 - name
 - createdAt
 
 ### User
 
+- stored separately or embedded later depending on auth shape
 - id
 - accountId
 - email
@@ -188,15 +192,19 @@ project-root/
 ### Project
 
 - id
+- kind = `project`
 - accountId
 - name
 - description
+- type
 - status
+- alertEnabled
 - createdAt
 
 ### Task
 
 - id
+- kind = `task`
 - projectId
 - title
 - description
@@ -212,6 +220,7 @@ project-root/
 ### TaskHistory
 
 - id
+- kind = `taskHistory`
 - taskId
 - changedBy
 - eventType
@@ -219,7 +228,7 @@ project-root/
 - newValue
 - createdAt
 
-This history table is important because your graph should be driven by real status-change events, not only the current task state.
+This history document set is important because your graph should be driven by real status-change events, not only the current task state.
 
 ---
 
@@ -329,7 +338,7 @@ Especially valuable because the app is intended to be used as a mobile-first PWA
 ### Recommended Azure Services
 
 - Azure App Service for the web app
-- Azure Database for PostgreSQL
+- Azure Cosmos DB for NoSQL
 - Azure Key Vault for secrets
 - Azure Monitor / Application Insights for logs and telemetry
 - Azure Storage only if attachments are added later
@@ -338,7 +347,7 @@ Especially valuable because the app is intended to be used as a mobile-first PWA
 
 Option A: Best MVP choice
 - Deploy the Next.js app to Azure App Service
-- Connect to Azure PostgreSQL
+- Connect to Azure Cosmos DB for NoSQL
 
 Option B: More cloud-native later
 - Containerize app
@@ -379,7 +388,7 @@ Stages:
 - GitHub Actions workflow files
 - Branch protection on `main`
 - Required PR checks
-- Secrets for Azure credentials and database connection
+- Secrets for Azure credentials and Cosmos DB connection
 
 ---
 
@@ -388,7 +397,7 @@ Stages:
 ### Phase 1: Foundation
 
 - Create Next.js app
-- Add database and Prisma
+- Add Cosmos DB integration
 - Set up basic layout and navigation
 - Create account, project, and task schema
 - Add local development environment
