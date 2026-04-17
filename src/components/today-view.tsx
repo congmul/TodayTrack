@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PrimaryNav } from "@/components/primary-nav";
 import { getDashboardPreview } from "@/lib/dashboard-preview";
+import styles from "./today-view.module.css";
 
 export function TodayView() {
   const preview = getDashboardPreview();
@@ -17,7 +18,7 @@ export function TodayView() {
                 Due today plus overdue unfinished work, prioritized for quick
                 action on mobile.
               </p>
-              <div className="hero-actions">
+              <div className={styles.heroActions}>
                 <Link className="button-primary" href="/projects">
                   Open projects
                 </Link>
@@ -27,7 +28,7 @@ export function TodayView() {
               </div>
             </div>
 
-            <div className="stats-grid" aria-label="dashboard summary">
+            <div className={styles.statsGrid} aria-label="dashboard summary">
               {preview.summary.map((item) => (
                 <article className="panel-card" key={item.label}>
                   <span className="stat-label">{item.label}</span>
@@ -39,7 +40,7 @@ export function TodayView() {
           </div>
         </section>
 
-        <section className="section-stack">
+        <section className={styles.sectionStack}>
           <div>
             <div className="section-header">
               <div>
@@ -52,7 +53,7 @@ export function TodayView() {
               <span className="badge warm">{preview.projectName}</span>
             </div>
 
-            <div className="tasks-grid">
+            <div className={styles.tasksGrid}>
               {preview.tasks.map((task) => (
                 <article className="task-card" key={task.id}>
                   <div className="task-topline">
@@ -81,13 +82,13 @@ export function TodayView() {
             </div>
           </div>
 
-          <aside className="panel-card desktop-only">
+          <aside className={`panel-card ${styles.desktopOnly}`}>
             <h2>Today route notes</h2>
             <p className="section-copy">
               Task details should move toward full pages or sheets rather than
               modal-first flows.
             </p>
-            <div className="section-stack compact-stack">
+            <div className={`${styles.sectionStack} ${styles.compactStack}`}>
               <div>
                 <strong>Primary job</strong>
                 <p className="muted-copy">

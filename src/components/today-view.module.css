@@ -1,0 +1,60 @@
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.statsGrid,
+.tasksGrid {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.statsGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 1.5rem;
+}
+
+.sectionStack {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.tasksGrid {
+  grid-template-columns: 1fr;
+}
+
+.desktopOnly {
+  display: none;
+}
+
+.compactStack {
+  margin-top: 0;
+}
+
+@media (min-width: 768px) {
+  .sectionStack {
+    gap: 1.25rem;
+  }
+
+  .tasksGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 0;
+  }
+
+  .sectionStack {
+    grid-template-columns: minmax(0, 1.3fr) minmax(300px, 0.7fr);
+  }
+
+  .desktopOnly {
+    display: block;
+  }
+}

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PrimaryNav } from "@/components/primary-nav";
 import { getDashboardPreview } from "@/lib/dashboard-preview";
+import styles from "./history-view.module.css";
 
 export function HistoryView() {
   const preview = getDashboardPreview();
@@ -8,7 +9,7 @@ export function HistoryView() {
   return (
     <main className="page-shell">
       <div className="app-frame app-stack">
-        <section className="panel-card section-panel">
+        <section className={`panel-card ${styles.sectionPanel}`}>
           <div className="section-header">
             <div>
               <span className="eyebrow">History</span>
@@ -24,7 +25,7 @@ export function HistoryView() {
           </div>
         </section>
 
-        <section className="history-grid">
+        <section className={styles.historyGrid}>
           {preview.history.map((entry) => (
             <article className="panel-card" key={entry.label}>
               <div className="task-topline">

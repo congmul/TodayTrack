@@ -12,6 +12,8 @@ This document keeps simple frontend structure and implementation rules for Today
 
 - Avoid inline styles as much as possible
 - Prefer CSS modules, global styles, or shared component styles
+- Only shared styles should live in `globals.css`
+- Page-specific or feature-specific styles should be separated from `globals.css`
 - Keep styling consistent across pages and components
 - Do not mix multiple styling patterns without a good reason
 

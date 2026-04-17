@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PrimaryNav } from "@/components/primary-nav";
 import { getDashboardPreview } from "@/lib/dashboard-preview";
+import styles from "./projects-view.module.css";
 
 export function ProjectsView() {
   const preview = getDashboardPreview();
@@ -8,7 +9,7 @@ export function ProjectsView() {
   return (
     <main className="page-shell">
       <div className="app-frame app-stack">
-        <section className="panel-card section-panel">
+        <section className={`panel-card ${styles.sectionPanel}`}>
           <div className="section-header">
             <div>
               <span className="eyebrow">Projects</span>
@@ -24,7 +25,7 @@ export function ProjectsView() {
           </div>
         </section>
 
-        <section className="project-list">
+        <section className={styles.projectList}>
           <article className="task-card">
             <div className="task-topline">
               <h2>{preview.projectName}</h2>

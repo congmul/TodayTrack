@@ -1,4 +1,5 @@
 import Link from "next/link";
+import styles from "./page.module.css";
 
 export default function Home() {
   return (
@@ -16,23 +17,23 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="panel-card route-list-panel">
+            <div className={`panel-card ${styles.routeListPanel}`}>
               <h2>Open a route</h2>
               <p className="section-copy">
                 Start from the focused daily queue, then move into projects or
                 history with dedicated navigation endpoints.
               </p>
 
-              <div className="route-list">
-                <Link className="route-link" href="/today">
+              <div className={styles.routeList}>
+                <Link className={styles.routeLink} href="/today">
                   <strong>/today</strong>
                   <span className="muted-copy">Daily task view</span>
                 </Link>
-                <Link className="route-link" href="/projects">
+                <Link className={styles.routeLink} href="/projects">
                   <strong>/projects</strong>
                   <span className="muted-copy">Project list and summaries</span>
                 </Link>
-                <Link className="route-link" href="/history">
+                <Link className={styles.routeLink} href="/history">
                   <strong>/history</strong>
                   <span className="muted-copy">Completion analytics preview</span>
                 </Link>

@@ -1,0 +1,18 @@
+.routeListPanel {
+  display: grid;
+  gap: 1rem;
+}
+
+.routeList {
+  display: grid;
+  gap: 1rem;
+}
+
+.routeLink {
+  display: grid;
+  gap: 0.3rem;
+  padding: 1rem;
+  border: 1px solid rgba(217, 203, 184, 0.85);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.65);
+}
