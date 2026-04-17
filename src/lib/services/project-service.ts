@@ -28,6 +28,14 @@ export type CreateProjectInput = {
   type: string;
 };
 
+export type UpdateProjectInput = {
+  name?: string;
+  description?: string | null;
+  type?: string;
+  status?: string;
+  alertEnabled?: boolean;
+};
+
 export class ProjectServiceError extends Error {
   constructor(
     message: string,
@@ -108,6 +116,87 @@ export class ProjectService {
 
     return toProjectDto(project);
   }
+
+  async updateProject(projectId: string, input: UpdateProjectInput) {
+    assertId(projectId, "projectId");
+
+    const project = await this.repository.findById(projectId);
+    if (!project) {
+      throw new ProjectServiceError("Project not found.", "PROJECT_NOT_FOUND");
+    }
+
+    const updates: Parameters<ProjectRepository["update"]>[1] = {};
+
+    if (input.name !== undefined) {
+      const normalizedName = input.name.trim();
+      if (!normalizedName) {
+        throw new ProjectServiceError(
+          "Project name cannot be empty.",
+          "INVALID_INPUT",
+        );
+      }
+
+      if (normalizedName !== project.name) {
+        const existingProject = await this.repository.findByName(
+          project.accountId,
+          normalizedName,
+        );
+
+        if (existingProject && existingProject.id !== project.id) {
+          throw new ProjectServiceError(
+            "A project with this name already exists in the account.",
+            "PROJECT_NAME_CONFLICT",
+          );
+        }
+      }
+
+      updates.name = normalizedName;
+    }
+
+    if (input.description !== undefined) {
+      updates.description = normalizeNullableDescription(input.description);
+    }
+
+    if (input.type !== undefined) {
+      updates.type = parseProjectType(input.type);
+    }
+
+    if (input.status !== undefined) {
+      updates.status = parseProjectStatus(input.status);
+    }
+
+    if (input.alertEnabled !== undefined) {
+      if (typeof input.alertEnabled !== "boolean") {
+        throw new ProjectServiceError(
+          "alertEnabled must be a boolean.",
+          "INVALID_INPUT",
+        );
+      }
+
+      updates.alertEnabled = input.alertEnabled;
+    }
+
+    if (Object.keys(updates).length === 0) {
+      throw new ProjectServiceError(
+        "At least one updatable field is required.",
+        "INVALID_INPUT",
+      );
+    }
+
+    const updatedProject = await this.repository.update(project, updates);
+    return toProjectDto(updatedProject);
+  }
+
+  async deleteProject(projectId: string) {
+    assertId(projectId, "projectId");
+
+    const project = await this.repository.findById(projectId);
+    if (!project) {
+      throw new ProjectServiceError("Project not found.", "PROJECT_NOT_FOUND");
+    }
+
+    await this.repository.delete(project);
+  }
 }
 
 export function createProjectService() {
@@ -130,6 +219,28 @@ function parseProjectType(value: string): ProjectTypeValue {
 function normalizeDescription(description?: string) {
   const value = description?.trim();
   return value ? value : undefined;
+}
+
+function normalizeNullableDescription(description?: string | null) {
+  if (description === null) {
+    return null;
+  }
+
+  const value = description?.trim();
+  return value ? value : null;
+}
+
+function parseProjectStatus(value: string): ProjectDocument["status"] {
+  const normalized = value?.trim().toLowerCase();
+
+  if (normalized === "active" || normalized === "archived") {
+    return normalized;
+  }
+
+  throw new ProjectServiceError(
+    'Project status must be "active" or "archived".',
+    "INVALID_INPUT",
+  );
 }
 
 function assertId(value: string, fieldName: string) {

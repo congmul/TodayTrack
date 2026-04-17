@@ -3,20 +3,13 @@
   gap: 1rem;
 }
 
-.projectList {
+.detailGrid {
   display: grid;
   gap: 1rem;
 }
 
-.detailLink {
-  display: inline-flex;
-  margin-top: 0.9rem;
-  font-weight: 700;
-  color: var(--brand-strong);
-}
-
 @media (min-width: 768px) {
-  .projectList {
+  .detailGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

@@ -15,6 +15,12 @@ function createRepositoryStub(overrides: Partial<ProjectRepository> = {}): Proje
     findByName: vi.fn().mockResolvedValue(null),
     listByAccountId: vi.fn().mockResolvedValue([]),
     create: vi.fn(async (input: CreateProjectRecordInput) => createProjectRecord(input)),
+    update: vi.fn(async (project, input) => ({
+      ...project,
+      ...input,
+      updatedAt: "2026-04-18T12:00:00.000Z",
+    })),
+    delete: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   };
 }
@@ -166,5 +172,76 @@ describe("ProjectService", () => {
     ).rejects.toMatchObject<ProjectServiceError>({
       code: "PROJECT_NAME_CONFLICT",
     });
+  });
+
+  it("updates a project with validated fields", async () => {
+    const repository = createRepositoryStub({
+      findById: vi.fn().mockResolvedValue(
+        createProjectRecord({
+          accountId: "account_123",
+          name: "Morning Routine",
+          type: "habit",
+        }),
+      ),
+    });
+    const service = new ProjectService(repository);
+
+    const result = await service.updateProject("project_123", {
+      name: "Evening Routine",
+      status: "archived",
+      alertEnabled: true,
+    });
+
+    expect(result).toMatchObject({
+      name: "Evening Routine",
+      status: "archived",
+      alertEnabled: true,
+    });
+    expect(repository.update).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "project_123" }),
+      expect.objectContaining({
+        name: "Evening Routine",
+        status: "archived",
+        alertEnabled: true,
+      }),
+    );
+  });
+
+  it("rejects update requests without changes", async () => {
+    const repository = createRepositoryStub({
+      findById: vi.fn().mockResolvedValue(
+        createProjectRecord({
+          accountId: "account_123",
+          name: "Morning Routine",
+          type: "habit",
+        }),
+      ),
+    });
+    const service = new ProjectService(repository);
+
+    await expect(service.updateProject("project_123", {})).rejects.toMatchObject<
+      ProjectServiceError
+    >({
+      code: "INVALID_INPUT",
+    });
+  });
+
+  it("deletes an existing project", async () => {
+    const repository = createRepositoryStub({
+      findById: vi.fn().mockResolvedValue(
+        createProjectRecord({
+          accountId: "account_123",
+          name: "Morning Routine",
+          type: "habit",
+        }),
+      ),
+    });
+    const service = new ProjectService(repository);
+
+    await service.deleteProject("project_123");
+
+    expect(repository.delete).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "project_123" }),
+    );
   });
 });

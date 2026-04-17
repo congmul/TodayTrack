@@ -16,5 +16,8 @@ describe("ProjectsView", () => {
       "href",
       "/projects",
     );
+    expect(
+      screen.getAllByRole("link", { name: "Open project detail" })[0],
+    ).toHaveAttribute("href", "/projects/project_habit_english");
   });
 });
