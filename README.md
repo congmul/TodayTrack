@@ -16,3 +16,24 @@ Current product direction:
 - Task history and completion analytics
 
 When making product or implementation decisions, use the plan in `docs/` as the source of truth first.
+
+
+CODEX INSTRUCTION EXAMPLE
+```
+Read AGENTS.md first.
+
+Implement Feature: Task Creation
+
+File:
+docs/features/02-task-creation.md
+
+Scope:
+- Only implement this feature
+- Do not implement analytics or unrelated features
+
+Deliver:
+- schema
+- API
+- service logic
+- tests
+```
