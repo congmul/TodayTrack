@@ -9,6 +9,9 @@ Area-specific notes live in:
 - [docs/BACKEND.md](./docs/BACKEND.md)
 - [docs/PIPELINE.md](./docs/PIPELINE.md)
 
+Technical implementation documents live in:
+- [docs/technical/AUTHENTICATION.md](./docs/technical/AUTHENTICATION.md)
+
 Current product direction:
 - Mobile-first task management experience
 - PWA-enabled Next.js app
