@@ -5,10 +5,14 @@ import {
 } from "@/lib/db/cosmos-schema";
 
 describe("Cosmos schema contract", () => {
-  it("defines the app database and containers for account and project management", () => {
+  it("defines the app database and containers for account, user, and project management", () => {
     expect(cosmosDatabaseId).toBeTruthy();
     expect(cosmosContainers.accounts).toEqual({
       id: "accounts",
+      partitionKey: "/id",
+    });
+    expect(cosmosContainers.users).toEqual({
+      id: "users",
       partitionKey: "/id",
     });
     expect(cosmosContainers.projects).toEqual({

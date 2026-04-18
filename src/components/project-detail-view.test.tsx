@@ -11,7 +11,7 @@ describe("ProjectDetailView", () => {
     expect(screen.getByText("Type: task")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Back to projects" })).toHaveAttribute(
       "href",
-      "/projects",
+      "/projects?account=account_demo&project=project_task_home",
     );
   });
 

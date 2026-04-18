@@ -1,0 +1,36 @@
+.sectionPanel {
+  display: grid;
+  gap: 1rem;
+}
+
+.profileGrid {
+  display: grid;
+  gap: 1rem;
+}
+
+.logoutCard {
+  display: grid;
+  gap: 1rem;
+}
+
+.logoutForm {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.logoutButton {
+  width: 100%;
+  border: 0;
+  cursor: pointer;
+}
+
+@media (min-width: 768px) {
+  .profileGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .logoutButton {
+    width: fit-content;
+    min-width: 12rem;
+  }
+}

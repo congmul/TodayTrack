@@ -1,10 +1,17 @@
 import Link from "next/link";
 import { PrimaryNav } from "@/components/primary-nav";
-import { listProjectPreviews } from "@/lib/project-preview";
+import { getProjectSelection } from "@/lib/workspace-preview";
 import styles from "./projects-view.module.css";
 
-export function ProjectsView() {
-  const projects = listProjectPreviews();
+type ProjectsViewProps = {
+  accountId?: string | null;
+  projectId?: string | null;
+};
+
+export function ProjectsView({ accountId, projectId }: ProjectsViewProps) {
+  const selection = getProjectSelection(accountId, projectId);
+  const projects = selection.projects;
+  const selectionQuery = `account=${selection.account.id}&project=${selection.project.id}`;
 
   return (
     <main className="page-shell">
@@ -15,13 +22,18 @@ export function ProjectsView() {
               <span className="eyebrow">Projects</span>
               <h1 className="page-title">Project workspace</h1>
               <p className="section-copy">
-                Projects live on their own route so navigation matches real
-                product boundaries.
+                Only projects related to the selected account are shown here so
+                the workspace stays focused and user-scoped.
               </p>
             </div>
-            <Link className="button-secondary" href="/today">
-              Back to today
-            </Link>
+            <div className={styles.headerActions}>
+              <Link className="button-primary" href={`/projects/new?${selectionQuery}`}>
+                Create project
+              </Link>
+              <Link className="button-secondary" href={`/today?${selectionQuery}`}>
+                Back to today
+              </Link>
+            </div>
           </div>
         </section>
 
@@ -47,7 +59,7 @@ export function ProjectsView() {
               </div>
               <Link
                 className={styles.detailLink}
-                href={`/projects/${project.id}`}
+                href={`/projects/${project.id}?account=${selection.account.id}&project=${project.id}`}
               >
                 Open project detail
               </Link>

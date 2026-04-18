@@ -6,6 +6,10 @@ export const cosmosContainers = {
     id: "accounts",
     partitionKey: "/id",
   },
+  users: {
+    id: "users",
+    partitionKey: "/id",
+  },
   projects: {
     id: "projects",
     partitionKey: "/accountId",
@@ -14,11 +18,25 @@ export const cosmosContainers = {
 
 export type ProjectTypeValue = "habit" | "task";
 export type ProjectStatusValue = "active" | "archived";
+export type AuthProviderValue = "microsoft" | "google";
 
 export type AccountDocument = {
   id: string;
   kind: "account";
   name: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type UserDocument = {
+  id: string;
+  kind: "user";
+  provider: AuthProviderValue;
+  providerUserId: string;
+  email: string | null;
+  displayName: string;
+  avatarUrl: string | null;
+  lastLoginAt: string;
   createdAt: string;
   updatedAt: string;
 };

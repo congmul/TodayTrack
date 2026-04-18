@@ -1,29 +1,47 @@
-import { render, screen } from "@testing-library/react";
 import Home from "@/app/page";
 
-describe("Home", () => {
-  it("renders the route-first landing copy", () => {
-    render(<Home />);
+const mockGetServerSession = vi.fn();
+const mockRedirect = vi.fn();
 
-    expect(
-      screen.getByRole("heading", {
-        name: "Keep today's work clear, calm, and moving.",
-      }),
-    ).toBeInTheDocument();
+vi.mock("@/lib/auth/session", () => ({
+  getServerSession: (...args: unknown[]) => mockGetServerSession(...args),
+}));
+
+vi.mock("next/navigation", async () => {
+  const actual = await vi.importActual<typeof import("next/navigation")>(
+    "next/navigation",
+  );
+
+  return {
+    ...actual,
+    redirect: (...args: unknown[]) => mockRedirect(...args),
+  };
+});
+
+describe("Home", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  it("links to the dedicated feature routes", () => {
-    render(<Home />);
+  it("redirects unauthenticated visitors to login first", async () => {
+    mockGetServerSession.mockResolvedValue(null);
 
-    expect(screen.getByRole("link", { name: /daily task view/i })).toHaveAttribute(
-      "href",
-      "/today",
-    );
-    expect(
-      screen.getByRole("link", { name: /project list and summaries/i }),
-    ).toHaveAttribute("href", "/projects");
-    expect(
-      screen.getByRole("link", { name: /completion analytics preview/i }),
-    ).toHaveAttribute("href", "/history");
+    await Home();
+
+    expect(mockRedirect).toHaveBeenCalledWith("/login");
+  });
+
+  it("redirects authenticated visitors to today", async () => {
+    mockGetServerSession.mockResolvedValue({
+      token: "session-token",
+      user: {
+        id: "azure:azure-user-123",
+      },
+      expiresAt: Date.now() + 1000,
+    });
+
+    await Home();
+
+    expect(mockRedirect).toHaveBeenCalledWith("/today");
   });
 });

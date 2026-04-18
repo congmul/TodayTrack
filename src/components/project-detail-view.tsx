@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { PrimaryNav } from "@/components/primary-nav";
-import { getProjectPreview } from "@/lib/project-preview";
+import { getProjectPreview } from "@/lib/workspace-preview";
 import styles from "./project-detail-view.module.css";
 
 type ProjectDetailViewProps = {
@@ -45,7 +45,10 @@ export function ProjectDetailView({ projectId }: ProjectDetailViewProps) {
               <h1 className="page-title">{project.name}</h1>
               <p className="section-copy">{project.detail}</p>
             </div>
-            <Link className="button-secondary" href="/projects">
+            <Link
+              className="button-secondary"
+              href={`/projects?account=${project.accountId}&project=${project.id}`}
+            >
               Back to projects
             </Link>
           </div>

@@ -1,0 +1,49 @@
+.sectionPanel {
+  display: grid;
+  gap: 1rem;
+}
+
+.formGrid {
+  display: grid;
+  gap: 1rem;
+}
+
+.fieldStack {
+  display: grid;
+  gap: 0.45rem;
+  margin-bottom: 1rem;
+}
+
+.fieldLabel {
+  font-weight: 700;
+}
+
+.fieldInput,
+.fieldTextarea {
+  width: 100%;
+  border: 1px solid rgba(217, 203, 184, 0.9);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--foreground);
+  padding: 0.85rem 0.95rem;
+}
+
+.fieldTextarea {
+  resize: vertical;
+}
+
+.successMessage {
+  color: var(--brand-strong);
+  font-weight: 700;
+}
+
+.errorMessage {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+@media (min-width: 768px) {
+  .formGrid {
+    grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+  }
+}

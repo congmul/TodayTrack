@@ -8,6 +8,12 @@
   gap: 1rem;
 }
 
+.headerActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
 .detailLink {
   display: inline-flex;
   margin-top: 0.9rem;

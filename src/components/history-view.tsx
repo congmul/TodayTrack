@@ -1,10 +1,16 @@
 import Link from "next/link";
 import { PrimaryNav } from "@/components/primary-nav";
-import { getDashboardPreview } from "@/lib/dashboard-preview";
+import { getDashboardPreview } from "@/lib/workspace-preview";
 import styles from "./history-view.module.css";
 
-export function HistoryView() {
-  const preview = getDashboardPreview();
+type HistoryViewProps = {
+  accountId?: string | null;
+  projectId?: string | null;
+};
+
+export function HistoryView({ accountId, projectId }: HistoryViewProps) {
+  const preview = getDashboardPreview(accountId, projectId);
+  const selectionQuery = `account=${preview.account.id}&project=${preview.project.id}`;
 
   return (
     <main className="page-shell">
@@ -19,7 +25,11 @@ export function HistoryView() {
                 with daily task actions.
               </p>
             </div>
-            <Link className="button-secondary" href="/today">
+            <div className="badge-row">
+              <span className="badge warm">{preview.account.name}</span>
+              <span className="badge neutral">{preview.project.name}</span>
+            </div>
+            <Link className="button-secondary" href={`/today?${selectionQuery}`}>
               Back to today
             </Link>
           </div>

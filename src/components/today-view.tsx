@@ -1,10 +1,16 @@
 import Link from "next/link";
 import { PrimaryNav } from "@/components/primary-nav";
-import { getDashboardPreview } from "@/lib/dashboard-preview";
+import { getDashboardPreview } from "@/lib/workspace-preview";
 import styles from "./today-view.module.css";
 
-export function TodayView() {
-  const preview = getDashboardPreview();
+type TodayViewProps = {
+  accountId?: string | null;
+  projectId?: string | null;
+};
+
+export function TodayView({ accountId, projectId }: TodayViewProps) {
+  const preview = getDashboardPreview(accountId, projectId);
+  const selectionQuery = `account=${preview.account.id}&project=${preview.project.id}`;
 
   return (
     <main className="page-shell">
@@ -19,10 +25,10 @@ export function TodayView() {
                 action on mobile.
               </p>
               <div className={styles.heroActions}>
-                <Link className="button-primary" href="/projects">
+                <Link className="button-primary" href={`/projects?${selectionQuery}`}>
                   Open projects
                 </Link>
-                <Link className="button-secondary" href="/history">
+                <Link className="button-secondary" href={`/history?${selectionQuery}`}>
                   View history
                 </Link>
               </div>
@@ -50,7 +56,7 @@ export function TodayView() {
                   single page with unrelated product areas.
                 </p>
               </div>
-              <span className="badge warm">{preview.projectName}</span>
+              <span className="badge warm">{preview.project.name}</span>
             </div>
 
             <div className={styles.tasksGrid}>

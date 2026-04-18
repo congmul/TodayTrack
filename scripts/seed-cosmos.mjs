@@ -35,6 +35,13 @@ const { container: accountsContainer } = await database.containers.createIfNotEx
   },
 );
 
+await database.containers.createIfNotExists({
+  id: "users",
+  partitionKey: {
+    paths: ["/id"],
+  },
+});
+
 const { container: projectsContainer } = await database.containers.createIfNotExists(
   {
     id: "projects",
@@ -104,7 +111,7 @@ console.log(
   JSON.stringify(
     {
       databaseId,
-      containers: ["accounts", "projects"],
+      containers: ["accounts", "users", "projects"],
       insertedDocuments: 1 + projectDocuments.length,
       accountId,
       projectIds: projectDocuments.map((project) => project.id),
