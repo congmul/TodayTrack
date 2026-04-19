@@ -13,7 +13,15 @@ describe("Cosmos schema contract", () => {
     });
     expect(cosmosContainers.projects).toEqual({
       id: "projects",
-      partitionKey: "/userId",
+      partitionKey: "/ownerUserId",
+    });
+    expect(cosmosContainers.projectMembers).toEqual({
+      id: "projectMembers",
+      partitionKey: "/projectId",
+    });
+    expect(cosmosContainers.tasks).toEqual({
+      id: "tasks",
+      partitionKey: "/projectId",
     });
   });
 

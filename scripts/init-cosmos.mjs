@@ -36,7 +36,21 @@ await database.containers.createIfNotExists({
 await database.containers.createIfNotExists({
   id: "projects",
   partitionKey: {
-    paths: ["/userId"],
+    paths: ["/ownerUserId"],
+  },
+});
+
+await database.containers.createIfNotExists({
+  id: "projectMembers",
+  partitionKey: {
+    paths: ["/projectId"],
+  },
+});
+
+await database.containers.createIfNotExists({
+  id: "tasks",
+  partitionKey: {
+    paths: ["/projectId"],
   },
 });
 
@@ -44,7 +58,7 @@ console.log(
   JSON.stringify(
     {
       databaseId,
-      containers: ["users", "projects"],
+      containers: ["users", "projects", "projectMembers", "tasks"],
       status: "ready",
     },
     null,

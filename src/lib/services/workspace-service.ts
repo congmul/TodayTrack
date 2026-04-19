@@ -1,5 +1,9 @@
 import { getCosmosClient } from "@/lib/db/cosmos";
 import {
+  CosmosProjectMemberRepository,
+  type ProjectMemberRepository,
+} from "@/lib/db/project-member-repository";
+import {
   CosmosProjectRepository,
   type ProjectRecord,
   type ProjectRepository,
@@ -9,6 +13,7 @@ import {
   type UserRepository,
 } from "@/lib/db/user-repository";
 import type { AuthUserDto } from "@/lib/services/auth-service";
+import { isMissingCosmosResourceError } from "@/lib/db/cosmos-errors";
 
 export class WorkspaceServiceError extends Error {
   constructor(
@@ -39,6 +44,7 @@ export class WorkspaceService {
   constructor(
     private readonly users: UserRepository,
     private readonly projects: ProjectRepository,
+    private readonly projectMembers: ProjectMemberRepository,
   ) {}
 
   async getWorkspaceContext(
@@ -50,7 +56,7 @@ export class WorkspaceService {
       throw new WorkspaceServiceError("User not found.", "USER_NOT_FOUND");
     }
 
-    const projects = await this.projects.listByUserId(user.id);
+    const projects = await this.listVisibleProjects(user.id);
     if (projects.length === 0) {
       return {
         hasProjects: false,
@@ -107,7 +113,10 @@ export class WorkspaceService {
       throw new WorkspaceServiceError("Project not found.", "PROJECT_NOT_FOUND");
     }
 
-    if (project.userId !== user.id) {
+    if (
+      project.ownerUserId !== user.id &&
+      !(await this.projectMembers.findActive(projectId, user.id))
+    ) {
       throw new WorkspaceServiceError(
         "Project does not belong to the current user.",
         "PROJECT_NOT_FOR_USER",
@@ -120,6 +129,44 @@ export class WorkspaceService {
 
     return toAuthUserDto(updatedUser);
   }
+
+  private async listVisibleProjects(userId: string) {
+    const ownedProjects = await this.projects.listOwnedByUserId(userId);
+    let activeMemberships: Awaited<
+      ReturnType<ProjectMemberRepository["listActiveByUserId"]>
+    > = [];
+
+    try {
+      activeMemberships = await this.projectMembers.listActiveByUserId(userId);
+    } catch (error) {
+      if (!isMissingCosmosResourceError(error)) {
+        throw error;
+      }
+    }
+
+    const visibleProjects = new Map<string, ProjectRecord>();
+
+    for (const project of ownedProjects) {
+      visibleProjects.set(project.id, project);
+    }
+
+    await Promise.all(
+      activeMemberships.map(async (membership) => {
+        if (visibleProjects.has(membership.projectId)) {
+          return;
+        }
+
+        const project = await this.projects.findById(membership.projectId);
+        if (project) {
+          visibleProjects.set(project.id, project);
+        }
+      }),
+    );
+
+    return Array.from(visibleProjects.values()).sort((left, right) =>
+      right.createdAt.localeCompare(left.createdAt),
+    );
+  }
 }
 
 export function createWorkspaceService() {
@@ -128,6 +175,7 @@ export function createWorkspaceService() {
   return new WorkspaceService(
     new CosmosUserRepository(client),
     new CosmosProjectRepository(client),
+    new CosmosProjectMemberRepository(client),
   );
 }
 

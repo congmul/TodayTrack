@@ -22,6 +22,7 @@ describe("ProjectCreateForm", () => {
 
     render(<ProjectCreateForm projects={projects} selectedProjectId="project_task_home" />);
 
+    expect(screen.getByRole("banner")).toHaveTextContent("Home Tasks");
     const submitButton = screen.getByRole("button", {
       name: "Create project",
     });

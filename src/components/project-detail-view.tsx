@@ -1,29 +1,30 @@
 import Link from "next/link";
+import { AppHeader } from "@/components/app-header";
+import { ProjectDangerZone } from "@/components/project-danger-zone";
+import { ProjectInvitePanel } from "@/components/project-invite-panel";
 import { PrimaryNav } from "@/components/primary-nav";
-import type { ProjectDto } from "@/lib/services/project-service";
+import type { ProjectDetailDto, ProjectDto } from "@/lib/services/project-service";
 import styles from "./project-detail-view.module.css";
 
 type ProjectDetailViewProps = {
-  project: ProjectDto | null;
+  project: ProjectDetailDto | null;
   projects: ProjectDto[];
-  selectedProjectId?: string | null;
+  selectedProjectName?: string | null;
 };
 
 export function ProjectDetailView({
   project,
   projects,
-  selectedProjectId = null,
+  selectedProjectName = null,
 }: ProjectDetailViewProps) {
-  const navProjects = projects.map((item) => ({
-    id: item.id,
-    name: item.name,
-  }));
-  const resolvedSelectedProjectId = selectedProjectId ?? projects[0]?.id ?? null;
+  const resolvedSelectedProjectId = project?.id ?? projects[0]?.id ?? null;
 
   if (!project) {
     return (
       <main className="page-shell">
         <div className="app-frame app-stack">
+          <AppHeader selectedProjectName={selectedProjectName} />
+
           <section className={`panel-card ${styles.sectionPanel}`}>
             <div className="section-header">
               <div>
@@ -42,7 +43,6 @@ export function ProjectDetailView({
           <PrimaryNav
             currentPath="/projects"
             hasProjects={projects.length > 0}
-            projects={navProjects}
             selectedProjectId={resolvedSelectedProjectId}
           />
         </div>
@@ -53,6 +53,8 @@ export function ProjectDetailView({
   return (
     <main className="page-shell">
       <div className="app-frame app-stack">
+        <AppHeader selectedProjectName={project.name} />
+
         <section className={`panel-card ${styles.sectionPanel}`}>
           <div className="section-header">
             <div>
@@ -62,12 +64,20 @@ export function ProjectDetailView({
                 {project.description ?? "No description added yet for this project."}
               </p>
             </div>
-            <Link
-              className="button-secondary"
-              href={`/projects?project=${project.id}`}
-            >
-              Back to projects
-            </Link>
+            <div className={styles.headerActions}>
+              {project.accessRole === "owner" ? (
+                <ProjectDangerZone
+                  projectId={project.id}
+                  projectName={project.name}
+                />
+              ) : null}
+              <Link
+                className="button-secondary"
+                href={`/projects?project=${project.id}`}
+              >
+                Back to projects
+              </Link>
+            </div>
           </div>
         </section>
 
@@ -77,6 +87,8 @@ export function ProjectDetailView({
             <div className="badge-row">
               <span className="badge neutral">Type: {project.type}</span>
               <span className="badge neutral">Status: {project.status}</span>
+              <span className="badge neutral">Tasks: {project.taskCount}</span>
+              <span className="badge neutral">{project.accessRole}</span>
             </div>
           </article>
 
@@ -87,12 +99,17 @@ export function ProjectDetailView({
               the parent workspace once those backend features are available.
             </p>
           </article>
+
+          <ProjectInvitePanel
+            canDeleteInvitations={project.accessRole === "owner"}
+            invitations={project.invitations}
+            projectId={project.id}
+          />
         </section>
 
         <PrimaryNav
           currentPath="/projects"
           hasProjects
-          projects={navProjects}
           selectedProjectId={project.id}
         />
       </div>

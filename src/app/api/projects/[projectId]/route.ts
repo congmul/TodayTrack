@@ -21,7 +21,11 @@ export async function GET(_: Request, { params }: ProjectParams) {
   const service = createProjectService();
 
   try {
-    const project = await service.getProject(projectId, user.id);
+    const project = await service.getProject(
+      projectId,
+      user.id,
+      user.selectedProjectId,
+    );
     return NextResponse.json({ project });
   } catch (error) {
     if (error instanceof ProjectServiceError) {
@@ -99,6 +103,10 @@ function mapProjectError(error: unknown) {
       INVALID_INPUT: 400,
       PROJECT_NOT_FOUND: 404,
       PROJECT_NAME_CONFLICT: 409,
+      PROJECT_ACCESS_DENIED: 403,
+      PROJECT_DELETE_FORBIDDEN: 403,
+      PROJECT_INVITE_CONFLICT: 409,
+      PROJECT_MEMBER_NOT_FOUND: 404,
     };
 
     return NextResponse.json(

@@ -1,22 +1,19 @@
 import Link from "next/link";
+import { AppHeader } from "@/components/app-header";
 import { PrimaryNav } from "@/components/primary-nav";
 import type { ProjectDto } from "@/lib/services/project-service";
 import styles from "./today-view.module.css";
 
 type TodayViewProps = {
   project: ProjectDto;
-  projects: ProjectDto[];
 };
 
-export function TodayView({ project, projects }: TodayViewProps) {
-  const navProjects = projects.map((item) => ({
-    id: item.id,
-    name: item.name,
-  }));
-
+export function TodayView({ project }: TodayViewProps) {
   return (
     <main className="page-shell">
       <div className="app-frame app-stack">
+        <AppHeader selectedProjectName={project.name} />
+
         <section className="hero-card">
           <div className="hero-grid">
             <div className="hero-copy">
@@ -51,7 +48,6 @@ export function TodayView({ project, projects }: TodayViewProps) {
         <PrimaryNav
           currentPath="/today"
           hasProjects
-          projects={navProjects}
           selectedProjectId={project.id}
         />
       </div>

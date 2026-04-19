@@ -1,0 +1,73 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(var(--brand-rgb), 0.14);
+  border-radius: 1.5rem;
+  background: rgba(255, 253, 248, 0.92);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow);
+}
+
+.brandLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-width: 0;
+}
+
+.logoMark {
+  display: inline-grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 0.9rem;
+  background: linear-gradient(
+    135deg,
+    rgba(var(--brand-rgb), 0.2),
+    rgba(var(--brand-rgb), 0.06)
+  );
+  border: 1px solid rgba(var(--brand-rgb), 0.14);
+}
+
+.logoMark svg {
+  width: 1.3rem;
+  height: 1.3rem;
+  color: var(--brand-strong);
+}
+
+.brandCopy {
+  display: grid;
+  min-width: 0;
+}
+
+.brandLabel {
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.projectLabel {
+  color: var(--muted);
+  font-size: 0.84rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.projectBadge {
+  max-width: min(48vw, 18rem);
+  justify-self: end;
+}
+
+@media (min-width: 768px) {
+  .header {
+    padding: 1rem 1.1rem;
+  }
+
+  .brandLabel {
+    font-size: 1.05rem;
+  }
+}

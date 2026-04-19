@@ -37,7 +37,24 @@ const { container: projectsContainer } = await database.containers.createIfNotEx
   {
     id: "projects",
     partitionKey: {
-      paths: ["/userId"],
+      paths: ["/ownerUserId"],
+    },
+  },
+);
+
+const { container: projectMembersContainer } =
+  await database.containers.createIfNotExists({
+    id: "projectMembers",
+    partitionKey: {
+      paths: ["/projectId"],
+    },
+  });
+
+const { container: tasksContainer } = await database.containers.createIfNotExists(
+  {
+    id: "tasks",
+    partitionKey: {
+      paths: ["/projectId"],
     },
   },
 );
@@ -63,7 +80,7 @@ const projectDocuments = [
   {
     id: "project_habit_english",
     kind: "project",
-    userId,
+    ownerUserId: userId,
     name: "English Habit",
     description: "Practice reading every day.",
     type: "habit",
@@ -75,7 +92,7 @@ const projectDocuments = [
   {
     id: "project_task_home",
     kind: "project",
-    userId,
+    ownerUserId: userId,
     name: "Home Tasks",
     description: "Practical chores and errands.",
     type: "task",
@@ -87,12 +104,63 @@ const projectDocuments = [
   {
     id: "project_task_work",
     kind: "project",
-    userId,
+    ownerUserId: userId,
     name: "Work Ops",
     description: "Operational follow-ups and deadlines.",
     type: "task",
     status: "active",
     alertEnabled: true,
+    createdAt: seedTimestamp,
+    updatedAt: seedTimestamp,
+  },
+];
+
+const projectMemberDocuments = [
+  {
+    id: "invite_demo_friend",
+    kind: "project-member",
+    projectId: "project_task_home",
+    userId: null,
+    invitedEmail: "friend@example.com",
+    role: "manager",
+    status: "pending",
+    invitedByUserId: userId,
+    createdAt: seedTimestamp,
+    updatedAt: seedTimestamp,
+  },
+];
+
+const taskDocuments = [
+  {
+    id: "task_home_1",
+    kind: "task",
+    projectId: "project_task_home",
+    title: "Empty the trash",
+    description: null,
+    dueDate: null,
+    repeatRule: null,
+    createdAt: seedTimestamp,
+    updatedAt: seedTimestamp,
+  },
+  {
+    id: "task_home_2",
+    kind: "task",
+    projectId: "project_task_home",
+    title: "Buy milk",
+    description: null,
+    dueDate: null,
+    repeatRule: null,
+    createdAt: seedTimestamp,
+    updatedAt: seedTimestamp,
+  },
+  {
+    id: "task_english_1",
+    kind: "task",
+    projectId: "project_habit_english",
+    title: "Read one paragraph",
+    description: null,
+    dueDate: null,
+    repeatRule: "FREQ=DAILY",
     createdAt: seedTimestamp,
     updatedAt: seedTimestamp,
   },
@@ -104,12 +172,24 @@ for (const project of projectDocuments) {
   await projectsContainer.items.upsert(project);
 }
 
+for (const member of projectMemberDocuments) {
+  await projectMembersContainer.items.upsert(member);
+}
+
+for (const task of taskDocuments) {
+  await tasksContainer.items.upsert(task);
+}
+
 console.log(
   JSON.stringify(
     {
       databaseId,
-      containers: ["users", "projects"],
-      insertedDocuments: 1 + projectDocuments.length,
+      containers: ["users", "projects", "projectMembers", "tasks"],
+      insertedDocuments:
+        1 +
+        projectDocuments.length +
+        projectMemberDocuments.length +
+        taskDocuments.length,
       userId,
       projectIds: projectDocuments.map((project) => project.id),
     },

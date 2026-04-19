@@ -5,6 +5,7 @@ const mockRequireServerSession = vi.fn();
 const mockRedirect = vi.fn();
 const mockGetWorkspaceContext = vi.fn();
 const mockTodayView = vi.fn(() => <div>Today View</div>);
+const mockListProjects = vi.fn();
 
 vi.mock("@/lib/auth/session", () => ({
   requireServerSession: (...args: unknown[]) => mockRequireServerSession(...args),
@@ -13,6 +14,12 @@ vi.mock("@/lib/auth/session", () => ({
 vi.mock("@/lib/services/workspace-service", () => ({
   createWorkspaceService: () => ({
     getWorkspaceContext: mockGetWorkspaceContext,
+  }),
+}));
+
+vi.mock("@/lib/services/project-service", () => ({
+  createProjectService: () => ({
+    listProjects: mockListProjects,
   }),
 }));
 
@@ -61,6 +68,13 @@ describe("TodayPage", () => {
       selectedProject: { id: "project_task_home", name: "Home Tasks" },
       user: { id: "microsoft:user-123" },
     });
+    mockListProjects.mockResolvedValue([
+      {
+        id: "project_task_home",
+        name: "Home Tasks",
+        ownerUserId: "microsoft:user-123",
+      },
+    ]);
 
     render(
       await TodayPage({
@@ -68,11 +82,12 @@ describe("TodayPage", () => {
       }),
     );
 
-    expect(mockTodayView).toHaveBeenCalledWith(
-      expect.objectContaining({
-        projects: [{ id: "project_task_home", name: "Home Tasks" }],
-        project: { id: "project_task_home", name: "Home Tasks" },
-      }),
-    );
+    expect(mockTodayView).toHaveBeenCalledWith({
+      project: {
+        id: "project_task_home",
+        name: "Home Tasks",
+        ownerUserId: "microsoft:user-123",
+      },
+    });
   });
 });

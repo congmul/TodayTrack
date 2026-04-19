@@ -7,31 +7,22 @@ describe("HistoryView", () => {
       <HistoryView
         project={{
           id: "project_task_home",
-          userId: "microsoft:user-123",
+          ownerUserId: "microsoft:user-123",
           name: "Home Tasks",
           description: "Practical chores and errands.",
           type: "task",
           status: "active",
           alertEnabled: false,
+          taskCount: 0,
+          accessRole: "owner",
+          isSelected: true,
           createdAt: "2026-04-18T08:00:00.000Z",
           updatedAt: "2026-04-18T08:00:00.000Z",
         }}
-        projects={[
-          {
-            id: "project_task_home",
-            userId: "microsoft:user-123",
-            name: "Home Tasks",
-            description: "Practical chores and errands.",
-            type: "task",
-            status: "active",
-            alertEnabled: false,
-            createdAt: "2026-04-18T08:00:00.000Z",
-            updatedAt: "2026-04-18T08:00:00.000Z",
-          },
-        ]}
       />,
     );
 
+    expect(screen.getByRole("banner")).toHaveTextContent("Home Tasks");
     expect(
       screen.getByRole("heading", { name: "History will follow real task activity" }),
     ).toBeInTheDocument();

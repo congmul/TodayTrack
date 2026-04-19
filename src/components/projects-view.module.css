@@ -18,16 +18,39 @@
   gap: 0.75rem;
 }
 
+.projectCard {
+  cursor: pointer;
+  transition:
+    transform 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.projectCard:hover,
+.projectCard:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(var(--brand-rgb), 0.22);
+}
+
+.projectCardSelected {
+  border-color: rgba(var(--brand-rgb), 0.25);
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.25rem;
+}
+
 .emptyState {
   display: grid;
   gap: 1rem;
 }
 
-.detailLink {
-  display: inline-flex;
-  margin-top: 0.9rem;
+.selectError {
+  margin: 0;
+  color: var(--danger);
   font-weight: 700;
-  color: var(--brand-strong);
 }
 
 @media (min-width: 768px) {

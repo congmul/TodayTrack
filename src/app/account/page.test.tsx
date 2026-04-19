@@ -49,6 +49,7 @@ describe("AccountPage", () => {
     expect(
       screen.getByRole("heading", { name: "Account and session" }),
     ).toBeInTheDocument();
+    expect(screen.getByRole("banner")).toHaveTextContent("Home Tasks");
     expect(screen.getByRole("button", { name: "Logout" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Account" })).toHaveAttribute(
       "href",

@@ -31,9 +31,10 @@ Instead:
 - a task may have a **due date**
 - the **project type** determines the behavior, UI, and analysis logic
 
-In the current product direction, a **signed-in user owns projects directly**.
+In the current product direction, a **signed-in user can own projects directly**
+and can also access **shared projects** through invitations.
 The app should treat the project list as the first meaningful workspace entry
-point, especially for a user who has not created a project yet.
+point, especially for a user who has not created or been invited to a project yet.
 
 ---
 
@@ -125,6 +126,32 @@ Important behavior:
   - `Account`
 - the Projects page should show a single onboarding card for creating the first project
 - the project selector should stay hidden until the user owns at least one project
+- if the user has one or more visible projects, the app lands on `Today` using the currently selected project
+- if the selected project is missing or invalid, the app should fall back to the first visible project
+
+### Project Selection Flow
+The app should treat one project as the active project for the signed-in user.
+
+Important behavior:
+- the selected project is stored on the user profile
+- project selection happens from the Projects page
+- clicking a project card opens project detail
+- selecting a project is a separate action from opening project detail
+- the active project is used by `Today` and `History`
+- invited projects can also become the selected project
+
+### Project Collaboration
+Projects can be shared with other users through email invitations.
+
+Important behavior:
+- a project has one `owner`
+- invited collaborators are added as `manager`
+- invited projects appear in the same Projects list as owned projects
+- if the invited email already belongs to an existing user, access is activated immediately
+- if the invited email does not belong to an existing user yet, access stays pending until that email signs in
+- pending invitations are activated automatically during login when the user email matches
+- managers can view, select, update, and invite collaborators
+- only the owner can delete the project or remove collaborators
 
 ### Project-Level UI
 The app should show different experiences based on project type.
@@ -207,6 +234,47 @@ The main focus is operational visibility, not consistency.
 - The user must choose a project type: `habit` or `task`.
 - The project type affects UI, analytics, and alert behavior.
 - If the user has no projects yet, the Projects page shows a clear first-project onboarding card with a create action.
+- After project creation, the new project becomes the selected project.
+- After project creation, the user is taken to the new project detail page.
+
+---
+
+### 1A. Select Project
+**As a user**, I want to choose which project is active, so that Today and History use the right workspace.
+
+#### Acceptance Criteria
+- The Projects page shows whether a project is currently selected.
+- The selected project card shows a `Selected` tag to the left of the status tag.
+- A project can be selected from a dedicated action on the project card.
+- Clicking the project card opens detail without silently changing the selected project.
+- The selected project is persisted for the signed-in user.
+- The selected project can be either owned or invited.
+
+---
+
+### 1B. Share Project
+**As a user**, I want to invite another user by email, so that they can collaborate on a shared project.
+
+#### Acceptance Criteria
+- The owner or a manager can invite another user by email from the project detail page.
+- Invited collaborators receive `manager` access by default.
+- Shared projects are visible in the Projects list for invited users.
+- If the invited email already belongs to an existing user, the invitation becomes active immediately.
+- If the invited email does not belong to an existing user yet, the invitation remains pending until that user signs in.
+- Active and pending invitations are visible on the project detail page.
+
+---
+
+### 1C. Delete Project And Remove Collaborator
+**As a project owner**, I want to remove collaborators or delete the project with confirmation, so that destructive actions stay intentional and restricted.
+
+#### Acceptance Criteria
+- Only the project owner can delete the project.
+- Only the project owner can remove invited collaborators.
+- Project deletion requires a confirmation step with an "Are you sure" message.
+- Project deletion requires the owner to type the exact project name before the delete action is enabled.
+- Removing a collaborator is available from the invitation list on the project detail page.
+- Managers cannot see or use owner-only delete actions.
 
 ---
 

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { AppHeader } from "@/components/app-header";
 import { PrimaryNav } from "@/components/primary-nav";
 import { authorizedFetch } from "@/lib/auth/client-auth";
 import styles from "./project-create-form.module.css";
@@ -30,6 +31,8 @@ export function ProjectCreateForm({
   const canSubmit = Boolean(name.trim() && type) && !isSubmitting;
 
   const hasProjects = projects.length > 0;
+  const selectedProjectName =
+    projects.find((project) => project.id === selectedProjectId)?.name ?? null;
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -82,6 +85,8 @@ export function ProjectCreateForm({
   return (
     <main className="page-shell">
       <div className="app-frame app-stack">
+        <AppHeader selectedProjectName={selectedProjectName} />
+
         <section className={`panel-card ${styles.sectionPanel}`}>
           <div className="section-header">
             <div>
@@ -186,7 +191,6 @@ export function ProjectCreateForm({
         <PrimaryNav
           currentPath="/projects"
           hasProjects={hasProjects}
-          projects={projects}
           selectedProjectId={selectedProjectId}
         />
       </div>

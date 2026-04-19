@@ -5,6 +5,7 @@ const mockRequireServerSession = vi.fn();
 const mockRedirect = vi.fn();
 const mockGetWorkspaceContext = vi.fn();
 const mockHistoryView = vi.fn(() => <div>History View</div>);
+const mockListProjects = vi.fn();
 
 vi.mock("@/lib/auth/session", () => ({
   requireServerSession: (...args: unknown[]) => mockRequireServerSession(...args),
@@ -13,6 +14,12 @@ vi.mock("@/lib/auth/session", () => ({
 vi.mock("@/lib/services/workspace-service", () => ({
   createWorkspaceService: () => ({
     getWorkspaceContext: mockGetWorkspaceContext,
+  }),
+}));
+
+vi.mock("@/lib/services/project-service", () => ({
+  createProjectService: () => ({
+    listProjects: mockListProjects,
   }),
 }));
 
@@ -61,6 +68,13 @@ describe("HistoryPage", () => {
       selectedProject: { id: "project_task_home", name: "Home Tasks" },
       user: { id: "microsoft:user-123" },
     });
+    mockListProjects.mockResolvedValue([
+      {
+        id: "project_task_home",
+        name: "Home Tasks",
+        ownerUserId: "microsoft:user-123",
+      },
+    ]);
 
     render(
       await HistoryPage({
@@ -68,11 +82,12 @@ describe("HistoryPage", () => {
       }),
     );
 
-    expect(mockHistoryView).toHaveBeenCalledWith(
-      expect.objectContaining({
-        projects: [{ id: "project_task_home", name: "Home Tasks" }],
-        project: { id: "project_task_home", name: "Home Tasks" },
-      }),
-    );
+    expect(mockHistoryView).toHaveBeenCalledWith({
+      project: {
+        id: "project_task_home",
+        name: "Home Tasks",
+        ownerUserId: "microsoft:user-123",
+      },
+    });
   });
 });

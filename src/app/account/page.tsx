@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { AppHeader } from "@/components/app-header";
 import { PrimaryNav } from "@/components/primary-nav";
 import { clearServerSession, requireServerSession } from "@/lib/auth/session";
 import { createWorkspaceService } from "@/lib/services/workspace-service";
@@ -11,10 +12,6 @@ export default async function AccountPage() {
     session.user.id,
     session.user.selectedProjectId,
   );
-  const navProjects = context.projects.map((project) => ({
-    id: project.id,
-    name: project.name,
-  }));
 
   async function logoutAction() {
     "use server";
@@ -26,6 +23,8 @@ export default async function AccountPage() {
   return (
     <main className="page-shell">
       <div className="app-frame app-stack">
+        <AppHeader selectedProjectName={context.selectedProject?.name} />
+
         <section className={`panel-card ${styles.sectionPanel}`}>
           <div className="section-header">
             <div>
@@ -81,7 +80,6 @@ export default async function AccountPage() {
         <PrimaryNav
           currentPath="/account"
           hasProjects={context.hasProjects}
-          projects={navProjects}
           selectedProjectId={context.selectedProject?.id}
         />
       </div>

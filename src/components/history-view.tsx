@@ -1,22 +1,19 @@
 import Link from "next/link";
+import { AppHeader } from "@/components/app-header";
 import { PrimaryNav } from "@/components/primary-nav";
 import type { ProjectDto } from "@/lib/services/project-service";
 import styles from "./history-view.module.css";
 
 type HistoryViewProps = {
   project: ProjectDto;
-  projects: ProjectDto[];
 };
 
-export function HistoryView({ project, projects }: HistoryViewProps) {
-  const navProjects = projects.map((item) => ({
-    id: item.id,
-    name: item.name,
-  }));
-
+export function HistoryView({ project }: HistoryViewProps) {
   return (
     <main className="page-shell">
       <div className="app-frame app-stack">
+        <AppHeader selectedProjectName={project.name} />
+
         <section className={`panel-card ${styles.sectionPanel}`}>
           <div className="section-header">
             <div>
@@ -50,7 +47,6 @@ export function HistoryView({ project, projects }: HistoryViewProps) {
         <PrimaryNav
           currentPath="/history"
           hasProjects
-          projects={navProjects}
           selectedProjectId={project.id}
         />
       </div>

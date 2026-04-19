@@ -30,7 +30,10 @@ vi.mock("@/lib/auth/api-user", () => ({
 describe("projects/[projectId] route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockGetApiSessionUser.mockResolvedValue({ id: "microsoft:user-123" });
+    mockGetApiSessionUser.mockResolvedValue({
+      id: "microsoft:user-123",
+      selectedProjectId: "project_1",
+    });
   });
 
   it("returns a project detail payload", async () => {
@@ -48,6 +51,7 @@ describe("projects/[projectId] route", () => {
     expect(mockService.getProject).toHaveBeenCalledWith(
       "project_1",
       "microsoft:user-123",
+      "project_1",
     );
     await expect(response.json()).resolves.toEqual({
       project: {

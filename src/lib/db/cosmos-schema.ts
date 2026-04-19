@@ -8,13 +8,23 @@ export const cosmosContainers = {
   },
   projects: {
     id: "projects",
-    partitionKey: "/userId",
+    partitionKey: "/ownerUserId",
+  },
+  projectMembers: {
+    id: "projectMembers",
+    partitionKey: "/projectId",
+  },
+  tasks: {
+    id: "tasks",
+    partitionKey: "/projectId",
   },
 } as const;
 
 export type ProjectTypeValue = "habit" | "task";
 export type ProjectStatusValue = "active" | "archived";
 export type AuthProviderValue = "microsoft" | "google";
+export type ProjectAccessRoleValue = "owner" | "manager";
+export type ProjectMemberStatusValue = "pending" | "active";
 
 export type UserDocument = {
   id: string;
@@ -33,12 +43,37 @@ export type UserDocument = {
 export type ProjectDocument = {
   id: string;
   kind: "project";
-  userId: string;
+  ownerUserId: string;
   name: string;
   description: string | null;
   type: ProjectTypeValue;
   status: ProjectStatusValue;
   alertEnabled: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ProjectMemberDocument = {
+  id: string;
+  kind: "project-member";
+  projectId: string;
+  userId: string | null;
+  invitedEmail: string;
+  role: Extract<ProjectAccessRoleValue, "manager">;
+  status: ProjectMemberStatusValue;
+  invitedByUserId: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type TaskDocument = {
+  id: string;
+  kind: "task";
+  projectId: string;
+  title: string;
+  description: string | null;
+  dueDate: string | null;
+  repeatRule: string | null;
   createdAt: string;
   updatedAt: string;
 };

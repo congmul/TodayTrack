@@ -1,5 +1,6 @@
 import { HistoryView } from "@/components/history-view";
 import { requireServerSession } from "@/lib/auth/session";
+import { createProjectService } from "@/lib/services/project-service";
 import { createWorkspaceService } from "@/lib/services/workspace-service";
 import { redirect } from "next/navigation";
 
@@ -20,9 +21,17 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
 
   if (!context.hasProjects || !context.selectedProject) {
     redirect("/projects");
+    return null;
   }
 
-  return (
-    <HistoryView project={context.selectedProject} projects={context.projects} />
+  const projectService = createProjectService();
+  const projects = await projectService.listProjects(
+    session.user.id,
+    context.selectedProject.id,
   );
+  const selectedProject =
+    projects.find((project) => project.id === context.selectedProject?.id) ??
+    projects[0];
+
+  return <HistoryView project={selectedProject} />;
 }

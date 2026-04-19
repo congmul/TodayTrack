@@ -70,7 +70,7 @@
 }
 
 .microsoftButton:hover {
-  border-color: rgba(15, 118, 110, 0.4);
+  border-color: rgba(var(--brand-rgb), 0.32);
 }
 
 .authActions {

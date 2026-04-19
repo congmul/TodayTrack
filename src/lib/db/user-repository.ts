@@ -25,6 +25,7 @@ export type UpdateUserWorkspaceInput = {
 
 export interface UserRepository {
   findById(userId: string): Promise<UserRecord | null>;
+  findByEmail(email: string): Promise<UserRecord | null>;
   findByProviderUserId(
     provider: AuthProviderValue,
     providerUserId: string,
@@ -62,6 +63,19 @@ export class CosmosUserRepository implements UserRepository {
     }
 
     return response.resource;
+  }
+
+  async findByEmail(email: string) {
+    const query = {
+      query:
+        "SELECT TOP 1 * FROM c WHERE c.email = @email AND c.kind = 'user'",
+      parameters: [{ name: "@email", value: email }],
+    };
+    const { resources } = await this.usersContainer.items
+      .query<UserDocument>(query)
+      .fetchAll();
+
+    return resources[0] ?? null;
   }
 
   async findByProviderUserId(

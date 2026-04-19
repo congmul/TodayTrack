@@ -41,6 +41,7 @@ describe("LoginPage", () => {
         "Keep today's tasks, project progress, and completion history in one focused workspace.",
       ),
     ).toBeInTheDocument();
+    expect(screen.queryByRole("banner")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Continue with Google" })).toHaveAttribute(
       "href",
       "/api/auth/login?provider=google",

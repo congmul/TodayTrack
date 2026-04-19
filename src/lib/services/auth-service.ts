@@ -1,10 +1,15 @@
 import { getCosmosClient } from "@/lib/db/cosmos";
 import {
+  CosmosProjectMemberRepository,
+  type ProjectMemberRepository,
+} from "@/lib/db/project-member-repository";
+import {
   CosmosUserRepository,
   type UpsertUserRecordInput,
   type UserRepository,
 } from "@/lib/db/user-repository";
 import type { AuthProviderValue } from "@/lib/db/cosmos-schema";
+import { isMissingCosmosResourceError } from "@/lib/db/cosmos-errors";
 
 export type AuthUserDto = {
   id: string;
@@ -41,7 +46,10 @@ export class AuthServiceError extends Error {
 }
 
 export class AuthService {
-  constructor(private readonly repository: UserRepository) {}
+  constructor(
+    private readonly users: UserRepository,
+    private readonly projectMembers: ProjectMemberRepository,
+  ) {}
 
   async syncOAuthUser(input: SyncOAuthUserInput) {
     const providerUserId = input.providerUserId?.trim();
@@ -62,17 +70,19 @@ export class AuthService {
       avatarUrl: normalizeNullableString(input.avatarUrl),
     };
 
-    const existingUser = await this.repository.findByProviderUserId(
+    const existingUser = await this.users.findByProviderUserId(
       input.provider,
       providerUserId,
     );
 
     if (!existingUser) {
-      const createdUser = await this.repository.create(normalizedInput);
+      const createdUser = await this.users.create(normalizedInput);
+      await this.activatePendingInvites(createdUser.id, createdUser.email);
       return toAuthUserDto(createdUser);
     }
 
-    const updatedUser = await this.repository.update(existingUser, normalizedInput);
+    const updatedUser = await this.users.update(existingUser, normalizedInput);
+    await this.activatePendingInvites(updatedUser.id, updatedUser.email);
     return toAuthUserDto(updatedUser);
   }
 
@@ -82,10 +92,38 @@ export class AuthService {
       ...input,
     });
   }
+
+  private async activatePendingInvites(userId: string, email: string | null) {
+    if (!email) {
+      return;
+    }
+
+    let pendingInvites;
+    try {
+      pendingInvites = await this.projectMembers.listPendingByEmail(email);
+    } catch (error) {
+      if (isMissingCosmosResourceError(error)) {
+        return;
+      }
+
+      throw error;
+    }
+
+    await Promise.all(
+      pendingInvites.map((invite) =>
+        this.projectMembers.activateInvite(invite, userId),
+      ),
+    );
+  }
 }
 
 export function createAuthService() {
-  return new AuthService(new CosmosUserRepository(getCosmosClient()));
+  const client = getCosmosClient();
+
+  return new AuthService(
+    new CosmosUserRepository(client),
+    new CosmosProjectMemberRepository(client),
+  );
 }
 
 function normalizeNullableString(value?: string | null) {

@@ -20,8 +20,12 @@ export default async function ProjectDetailPage({
     projectId,
   );
   const projectService = createProjectService();
+  const projects = await projectService.listProjects(
+    session.user.id,
+    context.selectedProject?.id,
+  );
   const project = await projectService
-    .getProject(projectId, session.user.id)
+    .getProject(projectId, session.user.id, context.selectedProject?.id)
     .catch((error: unknown) => {
       if (error instanceof ProjectServiceError) {
         return null;
@@ -33,8 +37,8 @@ export default async function ProjectDetailPage({
   return (
     <ProjectDetailView
       project={project}
-      projects={context.projects}
-      selectedProjectId={context.selectedProject?.id}
+      projects={projects}
+      selectedProjectName={context.selectedProject?.name}
     />
   );
 }

@@ -13,7 +13,7 @@ import {
 export type ProjectRecord = ProjectDocument;
 
 export type CreateProjectRecordInput = {
-  userId: string;
+  ownerUserId: string;
   name: string;
   description?: string;
   type: ProjectTypeValue;
@@ -29,8 +29,8 @@ export type UpdateProjectRecordInput = {
 
 export interface ProjectRepository {
   findById(projectId: string): Promise<ProjectRecord | null>;
-  findByName(userId: string, name: string): Promise<ProjectRecord | null>;
-  listByUserId(userId: string): Promise<ProjectRecord[]>;
+  findByName(ownerUserId: string, name: string): Promise<ProjectRecord | null>;
+  listOwnedByUserId(ownerUserId: string): Promise<ProjectRecord[]>;
   create(input: CreateProjectRecordInput): Promise<ProjectRecord>;
   update(
     project: ProjectRecord,
@@ -59,33 +59,33 @@ export class CosmosProjectRepository implements ProjectRepository {
     return resources[0] ?? null;
   }
 
-  async findByName(userId: string, name: string) {
+  async findByName(ownerUserId: string, name: string) {
     const query: SqlQuerySpec = {
       query:
-        "SELECT TOP 1 * FROM c WHERE c.userId = @userId AND c.kind = 'project' AND c.name = @name",
+        "SELECT TOP 1 * FROM c WHERE c.ownerUserId = @ownerUserId AND c.kind = 'project' AND c.name = @name",
       parameters: [
-        { name: "@userId", value: userId },
+        { name: "@ownerUserId", value: ownerUserId },
         { name: "@name", value: name },
       ],
     };
     const { resources } = await this.projectsContainer.items
       .query<ProjectDocument>(query, {
-        partitionKey: userId,
+        partitionKey: ownerUserId,
       })
       .fetchAll();
 
     return resources[0] ?? null;
   }
 
-  async listByUserId(userId: string) {
+  async listOwnedByUserId(ownerUserId: string) {
     const query: SqlQuerySpec = {
       query:
-        "SELECT * FROM c WHERE c.userId = @userId AND c.kind = 'project' ORDER BY c.createdAt DESC",
-      parameters: [{ name: "@userId", value: userId }],
+        "SELECT * FROM c WHERE c.ownerUserId = @ownerUserId AND c.kind = 'project' ORDER BY c.createdAt DESC",
+      parameters: [{ name: "@ownerUserId", value: ownerUserId }],
     };
     const { resources } = await this.projectsContainer.items
       .query<ProjectDocument>(query, {
-        partitionKey: userId,
+        partitionKey: ownerUserId,
       })
       .fetchAll();
 
@@ -97,7 +97,7 @@ export class CosmosProjectRepository implements ProjectRepository {
     const project: ProjectDocument = {
       id: crypto.randomUUID(),
       kind: "project",
-      userId: input.userId,
+      ownerUserId: input.ownerUserId,
       name: input.name,
       description: input.description ?? null,
       type: input.type,
@@ -124,7 +124,7 @@ export class CosmosProjectRepository implements ProjectRepository {
     };
 
     const { resource } = await this.projectsContainer
-      .item(project.id, project.userId)
+      .item(project.id, project.ownerUserId)
       .replace<ProjectDocument>(updatedProject);
 
     if (!resource) {
@@ -135,6 +135,6 @@ export class CosmosProjectRepository implements ProjectRepository {
   }
 
   async delete(project: ProjectRecord) {
-    await this.projectsContainer.item(project.id, project.userId).delete();
+    await this.projectsContainer.item(project.id, project.ownerUserId).delete();
   }
 }
