@@ -31,6 +31,10 @@ Instead:
 - a task may have a **due date**
 - the **project type** determines the behavior, UI, and analysis logic
 
+In the current product direction, a **signed-in user owns projects directly**.
+The app should treat the project list as the first meaningful workspace entry
+point, especially for a user who has not created a project yet.
+
 ---
 
 ## Core Concepts
@@ -104,6 +108,24 @@ For repeating tasks, if a scheduled occurrence is not completed by the end of th
 
 ## UI Requirements
 
+### Phase 1 Onboarding Flow
+Before task creation and analytics are fully implemented, the app should guide
+the user through a simple project-first onboarding flow.
+
+Important behavior:
+- if a signed-in user has no projects, the app lands on the Projects page
+- if a signed-in user has no projects, `/today` and `/history` redirect to `/projects`
+- when a user has no projects, the navigation should only show:
+  - `Projects`
+  - `Account`
+- when a user has one or more projects, the full navigation can be shown:
+  - `Today`
+  - `Projects`
+  - `History`
+  - `Account`
+- the Projects page should show a single onboarding card for creating the first project
+- the project selector should stay hidden until the user owns at least one project
+
 ### Project-Level UI
 The app should show different experiences based on project type.
 
@@ -138,6 +160,10 @@ The Today view should include:
 - habit tasks expected today
 - task-project items due today
 - overdue task-project items
+
+For Phase 1:
+- the Today route is available only after the user has at least one project
+- before task APIs exist, the Today route may show a project-aware placeholder instead of task content
 
 ---
 
@@ -180,6 +206,7 @@ The main focus is operational visibility, not consistency.
 - The user can create a project.
 - The user must choose a project type: `habit` or `task`.
 - The project type affects UI, analytics, and alert behavior.
+- If the user has no projects yet, the Projects page shows a clear first-project onboarding card with a create action.
 
 ---
 
@@ -250,6 +277,8 @@ The main focus is operational visibility, not consistency.
 **As a user**, I want to see what matters today, so that I can quickly act on my daily habits and real tasks.
 
 #### Acceptance Criteria
+- If the user has no projects, the app redirects the user to the Projects page instead of showing the Today route.
+- The Today route becomes available after the user creates at least one project.
 - The Today view shows habit tasks expected today.
 - The Today view shows task-project tasks due today.
 - The Today view shows overdue task-project tasks.
@@ -261,6 +290,7 @@ The main focus is operational visibility, not consistency.
 **As a user**, I want to see analytics for my projects, so that I can understand my consistency and task completion performance.
 
 #### Acceptance Criteria
+- If the user has no projects, the app redirects the user to the Projects page instead of showing the History route.
 - Habit project analytics show expected, completed, and missed tasks.
 - Habit project analytics support weekly, monthly, and yearly ranges.
 - Habit project analytics show streak information.
@@ -305,5 +335,6 @@ TodayTrack should support a simple task model with flexible scheduling, while pr
 
 - **Habit projects** focus on consistency, completion rate, and streaks
 - **Task projects** focus on due dates, alerts, and overdue visibility
+- **Phase 1 onboarding** focuses on creating the first project before exposing the full Today and History experience
 
 This allows the app to handle both personal habit tracking and practical task management without overcomplicating the task structure.
