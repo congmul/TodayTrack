@@ -31,3 +31,4 @@ These documents are the main source of truth for repository rules.
 - Keep changes focused and update docs when repository rules change
 - Add tests for new behavior and bug fixes
 - If repo docs and direct user instructions conflict, follow the user and then update the docs if needed
+- Add clear comments above functions and endpoints to explain their purpose and behavior
