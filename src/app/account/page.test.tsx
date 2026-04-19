@@ -2,15 +2,30 @@ import { render, screen } from "@testing-library/react";
 import AccountPage from "@/app/account/page";
 
 const mockRequireServerSession = vi.fn();
+const mockGetWorkspaceContext = vi.fn();
 
 vi.mock("@/lib/auth/session", () => ({
   requireServerSession: (...args: unknown[]) => mockRequireServerSession(...args),
   clearServerSession: vi.fn(),
 }));
 
+vi.mock("@/lib/services/workspace-service", () => ({
+  createWorkspaceService: () => ({
+    getWorkspaceContext: mockGetWorkspaceContext,
+  }),
+}));
+
 describe("AccountPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockGetWorkspaceContext.mockResolvedValue({
+      hasProjects: true,
+      projects: [{ id: "project_task_home", name: "Home Tasks" }],
+      selectedProject: { id: "project_task_home", name: "Home Tasks" },
+      user: {
+        id: "microsoft:microsoft-user-123",
+      },
+    });
   });
 
   it("renders account details and the logout button", async () => {

@@ -2,11 +2,38 @@ import { render, screen } from "@testing-library/react";
 import { TodayView } from "@/components/today-view";
 
 describe("TodayView", () => {
-  it("renders the today route content and primary navigation links", () => {
-    render(<TodayView projectId="project_task_home" />);
+  it("renders the today placeholder with real project context", () => {
+    render(
+      <TodayView
+        project={{
+          id: "project_task_home",
+          userId: "microsoft:user-123",
+          name: "Home Tasks",
+          description: "Practical chores and errands.",
+          type: "task",
+          status: "active",
+          alertEnabled: false,
+          createdAt: "2026-04-18T08:00:00.000Z",
+          updatedAt: "2026-04-18T08:00:00.000Z",
+        }}
+        projects={[
+          {
+            id: "project_task_home",
+            userId: "microsoft:user-123",
+            name: "Home Tasks",
+            description: "Practical chores and errands.",
+            type: "task",
+            status: "active",
+            alertEnabled: false,
+            createdAt: "2026-04-18T08:00:00.000Z",
+            updatedAt: "2026-04-18T08:00:00.000Z",
+          },
+        ]}
+      />,
+    );
 
     expect(
-      screen.getByRole("heading", { name: "Today's tasks" }),
+      screen.getByRole("heading", { name: "Home Tasks is ready for task planning." }),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Projects" })).toHaveAttribute(
       "href",
@@ -20,7 +47,7 @@ describe("TodayView", () => {
       "href",
       "/account?project=project_task_home",
     );
-    expect(screen.getByText("Buy milk on the way home")).toBeInTheDocument();
-    expect(screen.queryByText("Read one English paragraph")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Tasks will appear here" })).toBeInTheDocument();
+    expect(screen.queryByText("Buy milk on the way home")).not.toBeInTheDocument();
   });
 });

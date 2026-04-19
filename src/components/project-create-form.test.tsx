@@ -9,6 +9,10 @@ vi.mock("@/lib/auth/client-auth", () => ({
 }));
 
 describe("ProjectCreateForm", () => {
+  const projects = [
+    { id: "project_task_home", name: "Home Tasks" },
+  ];
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -16,7 +20,7 @@ describe("ProjectCreateForm", () => {
   it("requires a project type selection before submit is enabled", async () => {
     const user = userEvent.setup();
 
-    render(<ProjectCreateForm />);
+    render(<ProjectCreateForm projects={projects} selectedProjectId="project_task_home" />);
 
     const submitButton = screen.getByRole("button", {
       name: "Create project",
@@ -31,7 +35,7 @@ describe("ProjectCreateForm", () => {
   });
 
   it("shows both allowed project type options", () => {
-    render(<ProjectCreateForm />);
+    render(<ProjectCreateForm projects={projects} selectedProjectId="project_task_home" />);
 
     expect(screen.getByRole("option", { name: "Habit" })).toBeInTheDocument();
     expect(screen.getByRole("option", { name: "Task" })).toBeInTheDocument();
@@ -51,7 +55,7 @@ describe("ProjectCreateForm", () => {
       }),
     });
 
-    render(<ProjectCreateForm />);
+    render(<ProjectCreateForm projects={projects} selectedProjectId="project_task_home" />);
 
     await user.type(screen.getByLabelText("Project name"), "Morning Routine");
     await user.selectOptions(screen.getByLabelText("Project type"), "habit");

@@ -1,14 +1,24 @@
 import Link from "next/link";
 import { PrimaryNav } from "@/components/primary-nav";
-import { getProjectPreview } from "@/lib/workspace-preview";
+import type { ProjectDto } from "@/lib/services/project-service";
 import styles from "./project-detail-view.module.css";
 
 type ProjectDetailViewProps = {
-  projectId: string;
+  project: ProjectDto | null;
+  projects: ProjectDto[];
+  selectedProjectId?: string | null;
 };
 
-export function ProjectDetailView({ projectId }: ProjectDetailViewProps) {
-  const project = getProjectPreview(projectId);
+export function ProjectDetailView({
+  project,
+  projects,
+  selectedProjectId = null,
+}: ProjectDetailViewProps) {
+  const navProjects = projects.map((item) => ({
+    id: item.id,
+    name: item.name,
+  }));
+  const resolvedSelectedProjectId = selectedProjectId ?? projects[0]?.id ?? null;
 
   if (!project) {
     return (
@@ -20,7 +30,7 @@ export function ProjectDetailView({ projectId }: ProjectDetailViewProps) {
                 <span className="eyebrow">Project</span>
                 <h1 className="page-title">Project not found</h1>
                 <p className="section-copy">
-                  This project id does not match the current preview dataset.
+                  This project does not belong to the current signed-in user.
                 </p>
               </div>
               <Link className="button-secondary" href="/projects">
@@ -29,7 +39,12 @@ export function ProjectDetailView({ projectId }: ProjectDetailViewProps) {
             </div>
           </section>
 
-          <PrimaryNav currentPath="/projects" />
+          <PrimaryNav
+            currentPath="/projects"
+            hasProjects={projects.length > 0}
+            projects={navProjects}
+            selectedProjectId={resolvedSelectedProjectId}
+          />
         </div>
       </main>
     );
@@ -43,7 +58,9 @@ export function ProjectDetailView({ projectId }: ProjectDetailViewProps) {
             <div>
               <span className="eyebrow">Project Detail</span>
               <h1 className="page-title">{project.name}</h1>
-              <p className="section-copy">{project.detail}</p>
+              <p className="section-copy">
+                {project.description ?? "No description added yet for this project."}
+              </p>
             </div>
             <Link
               className="button-secondary"
@@ -61,22 +78,23 @@ export function ProjectDetailView({ projectId }: ProjectDetailViewProps) {
               <span className="badge neutral">Type: {project.type}</span>
               <span className="badge neutral">Status: {project.status}</span>
             </div>
-            <p className="section-copy">{project.description}</p>
           </article>
 
           <article className="task-card">
-            <h2>Behavior notes</h2>
-            <div className="badge-row">
-              {project.summary.map((item) => (
-                <span className="badge neutral" key={item}>
-                  {item}
-                </span>
-              ))}
-            </div>
+            <h2>Next step</h2>
+            <p className="section-copy">
+              Task management and completion analytics will use this project as
+              the parent workspace once those backend features are available.
+            </p>
           </article>
         </section>
 
-        <PrimaryNav currentPath="/projects" />
+        <PrimaryNav
+          currentPath="/projects"
+          hasProjects
+          projects={navProjects}
+          selectedProjectId={project.id}
+        />
       </div>
     </main>
   );

@@ -1,6 +1,7 @@
 import { getCosmosClient } from "@/lib/db/cosmos";
 import {
   CosmosProjectRepository,
+  type ProjectRecord,
   type ProjectRepository,
 } from "@/lib/db/project-repository";
 import {
@@ -27,29 +28,42 @@ export type LandingDestination = {
   user: AuthUserDto;
 };
 
+export type WorkspaceContext = {
+  hasProjects: boolean;
+  projects: ProjectRecord[];
+  selectedProject: ProjectRecord | null;
+  user: AuthUserDto;
+};
+
 export class WorkspaceService {
   constructor(
     private readonly users: UserRepository,
     private readonly projects: ProjectRepository,
   ) {}
 
-  async resolveLandingForUser(userId: string): Promise<LandingDestination> {
+  async getWorkspaceContext(
+    userId: string,
+    requestedProjectId?: string | null,
+  ): Promise<WorkspaceContext> {
     const user = await this.users.findById(userId);
     if (!user) {
       throw new WorkspaceServiceError("User not found.", "USER_NOT_FOUND");
     }
 
-    const userProjects = await this.projects.listByUserId(user.id);
-    if (userProjects.length === 0) {
+    const projects = await this.projects.listByUserId(user.id);
+    if (projects.length === 0) {
       return {
-        path: "/projects",
+        hasProjects: false,
+        projects,
+        selectedProject: null,
         user: toAuthUserDto(user),
       };
     }
 
     const selectedProject =
-      userProjects.find((project) => project.id === user.selectedProjectId) ??
-      userProjects[0];
+      projects.find((project) => project.id === requestedProjectId) ??
+      projects.find((project) => project.id === user.selectedProjectId) ??
+      projects[0];
 
     const resolvedUser =
       user.selectedProjectId === selectedProject.id
@@ -59,8 +73,26 @@ export class WorkspaceService {
           });
 
     return {
-      path: `/today?project=${selectedProject.id}`,
+      hasProjects: true,
+      projects,
+      selectedProject,
       user: toAuthUserDto(resolvedUser),
+    };
+  }
+
+  async resolveLandingForUser(userId: string): Promise<LandingDestination> {
+    const context = await this.getWorkspaceContext(userId);
+
+    if (!context.hasProjects || !context.selectedProject) {
+      return {
+        path: "/projects",
+        user: context.user,
+      };
+    }
+
+    return {
+      path: `/today?project=${context.selectedProject.id}`,
+      user: context.user,
     };
   }
 

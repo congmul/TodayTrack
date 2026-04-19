@@ -2,15 +2,42 @@ import { render, screen } from "@testing-library/react";
 import { HistoryView } from "@/components/history-view";
 
 describe("HistoryView", () => {
-  it("renders the dedicated history route", () => {
-    render(<HistoryView projectId="project_task_home" />);
+  it("renders the history placeholder with real project context", () => {
+    render(
+      <HistoryView
+        project={{
+          id: "project_task_home",
+          userId: "microsoft:user-123",
+          name: "Home Tasks",
+          description: "Practical chores and errands.",
+          type: "task",
+          status: "active",
+          alertEnabled: false,
+          createdAt: "2026-04-18T08:00:00.000Z",
+          updatedAt: "2026-04-18T08:00:00.000Z",
+        }}
+        projects={[
+          {
+            id: "project_task_home",
+            userId: "microsoft:user-123",
+            name: "Home Tasks",
+            description: "Practical chores and errands.",
+            type: "task",
+            status: "active",
+            alertEnabled: false,
+            createdAt: "2026-04-18T08:00:00.000Z",
+            updatedAt: "2026-04-18T08:00:00.000Z",
+          },
+        ]}
+      />,
+    );
 
     expect(
-      screen.getByRole("heading", { name: "Completion history" }),
+      screen.getByRole("heading", { name: "History will follow real task activity" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Back to today" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Back to projects" })).toHaveAttribute(
       "href",
-      "/today?project=project_task_home",
+      "/projects?project=project_task_home",
     );
     expect(screen.getByRole("link", { name: "History" })).toHaveAttribute(
       "href",
@@ -20,6 +47,6 @@ describe("HistoryView", () => {
       "href",
       "/account?project=project_task_home",
     );
-    expect(screen.getByText("Overdue tasks")).toBeInTheDocument();
+    expect(screen.getByText("No completion history yet")).toBeInTheDocument();
   });
 });

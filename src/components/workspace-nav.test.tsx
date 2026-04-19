@@ -11,8 +11,6 @@ vi.mock("@/lib/auth/client-auth", () => ({
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push }),
   usePathname: () => "/today",
-  useSearchParams: () =>
-    new URLSearchParams("project=project_task_home"),
 }));
 
 describe("WorkspaceNav", () => {
@@ -22,7 +20,15 @@ describe("WorkspaceNav", () => {
   });
 
   it("shows the project selector", () => {
-    render(<WorkspaceNav />);
+    render(
+      <WorkspaceNav
+        projects={[
+          { id: "project_habit_english", name: "English Habit" },
+          { id: "project_task_home", name: "Home Tasks" },
+        ]}
+        selectedProjectId="project_task_home"
+      />,
+    );
 
     expect(screen.getByLabelText("Project")).toBeInTheDocument();
     expect(screen.getByDisplayValue("Home Tasks")).toBeInTheDocument();

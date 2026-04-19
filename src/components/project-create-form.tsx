@@ -8,7 +8,18 @@ import styles from "./project-create-form.module.css";
 
 type ProjectTypeOption = "" | "habit" | "task";
 
-export function ProjectCreateForm() {
+type ProjectCreateFormProps = {
+  projects: Array<{
+    id: string;
+    name: string;
+  }>;
+  selectedProjectId?: string | null;
+};
+
+export function ProjectCreateForm({
+  projects,
+  selectedProjectId = null,
+}: ProjectCreateFormProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState<ProjectTypeOption>("");
@@ -17,6 +28,8 @@ export function ProjectCreateForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const canSubmit = Boolean(name.trim() && type) && !isSubmitting;
+
+  const hasProjects = projects.length > 0;
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -170,7 +183,12 @@ export function ProjectCreateForm() {
           </aside>
         </section>
 
-        <PrimaryNav currentPath="/projects" />
+        <PrimaryNav
+          currentPath="/projects"
+          hasProjects={hasProjects}
+          projects={projects}
+          selectedProjectId={selectedProjectId}
+        />
       </div>
     </main>
   );

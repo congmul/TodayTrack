@@ -1,31 +1,34 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { authorizedFetch } from "@/lib/auth/client-auth";
-import { listProjects } from "@/lib/workspace-preview";
 import styles from "./workspace-nav.module.css";
 
-export function WorkspaceNav() {
+type WorkspaceNavProps = {
+  projects: Array<{
+    id: string;
+    name: string;
+  }>;
+  selectedProjectId?: string | null;
+};
+
+export function WorkspaceNav({
+  projects,
+  selectedProjectId = null,
+}: WorkspaceNavProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  const availableProjects = listProjects();
-  const selectedProjectId =
-    searchParams.get("project") ?? availableProjects[0]?.id ?? "";
+  const resolvedSelectedProjectId = selectedProjectId ?? projects[0]?.id ?? "";
 
   async function updateSelection(nextProjectId: string) {
     const params = new URLSearchParams();
     const resolvedProjectId =
-      nextProjectId &&
-      availableProjects.some((project) => project.id === nextProjectId)
+      nextProjectId && projects.some((project) => project.id === nextProjectId)
         ? nextProjectId
-        : availableProjects[0]?.id;
+        : projects[0]?.id;
 
     if (resolvedProjectId) {
       params.set("project", resolvedProjectId);
-    } else {
-      params.delete("project");
     }
 
     if (resolvedProjectId) {
@@ -42,7 +45,8 @@ export function WorkspaceNav() {
       });
     }
 
-    router.push(`${pathname}?${params.toString()}`);
+    const query = params.toString();
+    router.push(query ? `${pathname}?${query}` : pathname);
   }
 
   return (
@@ -55,9 +59,9 @@ export function WorkspaceNav() {
           className={styles.selectorInput}
           id="projectSelect"
           onChange={(event) => updateSelection(event.target.value)}
-          value={selectedProjectId}
+          value={resolvedSelectedProjectId}
         >
-          {availableProjects.map((project) => (
+          {projects.map((project) => (
             <option key={project.id} value={project.id}>
               {project.name}
             </option>

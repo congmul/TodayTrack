@@ -1,10 +1,20 @@
 import { redirect } from "next/navigation";
 import { PrimaryNav } from "@/components/primary-nav";
 import { clearServerSession, requireServerSession } from "@/lib/auth/session";
+import { createWorkspaceService } from "@/lib/services/workspace-service";
 import styles from "./page.module.css";
 
 export default async function AccountPage() {
   const session = await requireServerSession();
+  const workspaceService = createWorkspaceService();
+  const context = await workspaceService.getWorkspaceContext(
+    session.user.id,
+    session.user.selectedProjectId,
+  );
+  const navProjects = context.projects.map((project) => ({
+    id: project.id,
+    name: project.name,
+  }));
 
   async function logoutAction() {
     "use server";
@@ -68,7 +78,12 @@ export default async function AccountPage() {
           </form>
         </section>
 
-        <PrimaryNav currentPath="/account" />
+        <PrimaryNav
+          currentPath="/account"
+          hasProjects={context.hasProjects}
+          projects={navProjects}
+          selectedProjectId={context.selectedProject?.id}
+        />
       </div>
     </main>
   );
