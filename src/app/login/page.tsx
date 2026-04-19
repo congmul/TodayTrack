@@ -25,62 +25,37 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const errorMessage = params.error ? loginErrors[params.error] : null;
 
   return (
-    <main className="page-shell">
-      <div className="app-frame app-stack">
-        <section className="hero-card">
-          <div className={styles.loginShell}>
-            <div className={`panel-card ${styles.loginPanel}`}>
-              <div className={styles.loginCopy}>
-                <span className="eyebrow">Login</span>
-                <h1>Choose Microsoft or Google, then go straight to your work.</h1>
-                <p>
-                  TodayTrack supports Microsoft login through default Microsoft
-                  Entra ID and Google login through Google OAuth. Sign in once,
-                  then the backend will find or create your user record
-                  automatically.
-                </p>
-              </div>
+    <main className={`${styles.loginPage} page-shell`}>
+      <div className={`app-frame ${styles.loginShell}`}>
+        <section className={styles.loginPanel}>
+          <div className={styles.loginCopy}>
+            <span className="eyebrow">TodayTrack</span>
+            <h1>TodayTrack</h1>
+            <p>
+              Keep today&apos;s tasks, project progress, and completion history
+              in one focused workspace.
+            </p>
+          </div>
 
-              {errorMessage ? (
-                <span className={`badge warm ${styles.errorBadge}`}>
-                  {errorMessage}
-                </span>
-              ) : null}
+          {errorMessage ? (
+            <span className={`badge warm ${styles.errorBadge}`}>
+              {errorMessage}
+            </span>
+          ) : null}
 
-              <div className={styles.authActions}>
-                <a
-                  className={`button-primary ${styles.authButton}`}
-                  href="/api/auth/login?provider=google"
-                >
-                  Continue with Google
-                </a>
-                <a
-                  className={`button-secondary ${styles.authButton}`}
-                  href="/api/auth/login?provider=microsoft"
-                >
-                  Continue with Microsoft
-                </a>
-              </div>
-              <p className={styles.authHint}>
-                Google and Microsoft now use separate OAuth flows, but both end
-                in the same secure TodayTrack session.
-              </p>
-            </div>
-
-            <aside className={`panel-card ${styles.supportCard}`}>
-              <h2>What happens next</h2>
-              <p className="section-copy">
-                After Azure finishes authentication, TodayTrack checks whether
-                your user already exists in the backend. If not, the backend
-                adds you and creates an app session token in the server cache.
-              </p>
-              <div className="badge-row">
-                <span className="badge neutral">Microsoft Entra ID</span>
-                <span className="badge neutral">Google OAuth</span>
-                <span className="badge neutral">Auto user sync</span>
-                <span className="badge neutral">Cached app token</span>
-              </div>
-            </aside>
+          <div className={styles.authActions}>
+            <a
+              className={`button-primary ${styles.authButton}`}
+              href="/api/auth/login?provider=google"
+            >
+              Continue with Google
+            </a>
+            <a
+              className={`button-secondary ${styles.authButton}`}
+              href="/api/auth/login?provider=microsoft"
+            >
+              Continue with Microsoft
+            </a>
           </div>
         </section>
       </div>

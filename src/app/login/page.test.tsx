@@ -34,9 +34,12 @@ describe("LoginPage", () => {
     );
 
     expect(
-      screen.getByRole("heading", {
-        name: "Choose Microsoft or Google, then go straight to your work.",
-      }),
+      screen.getByRole("heading", { name: "TodayTrack" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Keep today's tasks, project progress, and completion history in one focused workspace.",
+      ),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Continue with Google" })).toHaveAttribute(
       "href",
