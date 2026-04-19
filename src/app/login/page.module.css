@@ -34,14 +34,80 @@
 }
 
 .authButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   min-height: 3.25rem;
+  padding: 0.95rem 1rem;
+  border: 1px solid rgba(217, 203, 184, 0.95);
+  border-radius: 1.2rem;
   font-size: 1rem;
+  font-weight: 700;
+  box-shadow: var(--shadow);
+  transition:
+    transform 120ms ease,
+    border-color 120ms ease,
+    background-color 120ms ease;
+}
+
+.authButton:hover {
+  transform: translateY(-1px);
+}
+
+.googleButton {
+  background: #fffdf8;
+  color: var(--foreground);
+}
+
+.googleButton:hover {
+  border-color: rgba(66, 133, 244, 0.4);
+}
+
+.microsoftButton {
+  background: #fffdf8;
+  color: var(--foreground);
+}
+
+.microsoftButton:hover {
+  border-color: rgba(15, 118, 110, 0.4);
 }
 
 .authActions {
   display: grid;
   gap: 0.75rem;
+}
+
+.authButtonContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  width: 100%;
+}
+
+.logoBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.providerLogo {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.microsoftLogo {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.authLabel {
+  flex: 0 1 auto;
 }
 
 .errorBadge {
