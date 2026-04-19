@@ -13,7 +13,7 @@ import {
 export type ProjectRecord = ProjectDocument;
 
 export type CreateProjectRecordInput = {
-  accountId: string;
+  userId: string;
   name: string;
   description?: string;
   type: ProjectTypeValue;
@@ -28,10 +28,9 @@ export type UpdateProjectRecordInput = {
 };
 
 export interface ProjectRepository {
-  accountExists(accountId: string): Promise<boolean>;
   findById(projectId: string): Promise<ProjectRecord | null>;
-  findByName(accountId: string, name: string): Promise<ProjectRecord | null>;
-  listByAccountId(accountId: string): Promise<ProjectRecord[]>;
+  findByName(userId: string, name: string): Promise<ProjectRecord | null>;
+  listByUserId(userId: string): Promise<ProjectRecord[]>;
   create(input: CreateProjectRecordInput): Promise<ProjectRecord>;
   update(
     project: ProjectRecord,
@@ -41,27 +40,11 @@ export interface ProjectRepository {
 }
 
 export class CosmosProjectRepository implements ProjectRepository {
-  private readonly accountsContainer: Container;
   private readonly projectsContainer: Container;
 
   constructor(private readonly client: CosmosClient) {
     const database = client.database(cosmosDatabaseId);
-    this.accountsContainer = database.container(cosmosContainers.accounts.id);
     this.projectsContainer = database.container(cosmosContainers.projects.id);
-  }
-
-  async accountExists(accountId: string) {
-    const query: SqlQuerySpec = {
-      query: "SELECT TOP 1 VALUE c.id FROM c WHERE c.id = @accountId AND c.kind = 'account'",
-      parameters: [{ name: "@accountId", value: accountId }],
-    };
-    const { resources } = await this.accountsContainer.items
-      .query<string>(query, {
-        partitionKey: accountId,
-      })
-      .fetchAll();
-
-    return resources.length > 0;
   }
 
   async findById(projectId: string) {
@@ -76,33 +59,33 @@ export class CosmosProjectRepository implements ProjectRepository {
     return resources[0] ?? null;
   }
 
-  async findByName(accountId: string, name: string) {
+  async findByName(userId: string, name: string) {
     const query: SqlQuerySpec = {
       query:
-        "SELECT TOP 1 * FROM c WHERE c.accountId = @accountId AND c.kind = 'project' AND c.name = @name",
+        "SELECT TOP 1 * FROM c WHERE c.userId = @userId AND c.kind = 'project' AND c.name = @name",
       parameters: [
-        { name: "@accountId", value: accountId },
+        { name: "@userId", value: userId },
         { name: "@name", value: name },
       ],
     };
     const { resources } = await this.projectsContainer.items
       .query<ProjectDocument>(query, {
-        partitionKey: accountId,
+        partitionKey: userId,
       })
       .fetchAll();
 
     return resources[0] ?? null;
   }
 
-  async listByAccountId(accountId: string) {
+  async listByUserId(userId: string) {
     const query: SqlQuerySpec = {
       query:
-        "SELECT * FROM c WHERE c.accountId = @accountId AND c.kind = 'project' ORDER BY c.createdAt DESC",
-      parameters: [{ name: "@accountId", value: accountId }],
+        "SELECT * FROM c WHERE c.userId = @userId AND c.kind = 'project' ORDER BY c.createdAt DESC",
+      parameters: [{ name: "@userId", value: userId }],
     };
     const { resources } = await this.projectsContainer.items
       .query<ProjectDocument>(query, {
-        partitionKey: accountId,
+        partitionKey: userId,
       })
       .fetchAll();
 
@@ -114,7 +97,7 @@ export class CosmosProjectRepository implements ProjectRepository {
     const project: ProjectDocument = {
       id: crypto.randomUUID(),
       kind: "project",
-      accountId: input.accountId,
+      userId: input.userId,
       name: input.name,
       description: input.description ?? null,
       type: input.type,
@@ -141,7 +124,7 @@ export class CosmosProjectRepository implements ProjectRepository {
     };
 
     const { resource } = await this.projectsContainer
-      .item(project.id, project.accountId)
+      .item(project.id, project.userId)
       .replace<ProjectDocument>(updatedProject);
 
     if (!resource) {
@@ -152,6 +135,6 @@ export class CosmosProjectRepository implements ProjectRepository {
   }
 
   async delete(project: ProjectRecord) {
-    await this.projectsContainer.item(project.id, project.accountId).delete();
+    await this.projectsContainer.item(project.id, project.userId).delete();
   }
 }

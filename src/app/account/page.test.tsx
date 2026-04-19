@@ -16,12 +16,13 @@ describe("AccountPage", () => {
   it("renders account details and the logout button", async () => {
     mockRequireServerSession.mockResolvedValue({
       user: {
-        id: "azure:azure-user-123",
-        provider: "azure",
-        providerUserId: "azure-user-123",
+        id: "microsoft:microsoft-user-123",
+        provider: "microsoft",
+        providerUserId: "microsoft-user-123",
         email: "hyun@example.com",
         displayName: "J. Hyun",
         avatarUrl: null,
+        selectedProjectId: "project_task_home",
         lastLoginAt: "2026-04-18T19:00:00.000Z",
         createdAt: "2026-04-18T19:00:00.000Z",
         updatedAt: "2026-04-18T19:00:00.000Z",
@@ -36,7 +37,7 @@ describe("AccountPage", () => {
     expect(screen.getByRole("button", { name: "Logout" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Account" })).toHaveAttribute(
       "href",
-      "/account?account=account_demo&project=project_task_home",
+      "/account?project=project_task_home",
     );
   });
 });

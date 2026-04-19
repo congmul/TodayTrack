@@ -17,7 +17,7 @@ describe("getDashboardPreview", () => {
   });
 
   it("includes overdue or due-today labels that match the product definition", () => {
-    const preview = getDashboardPreview("account_demo", "project_task_home");
+    const preview = getDashboardPreview("project_task_home");
     const dueLabels = preview.tasks.map((task) => task.dueLabel);
 
     expect(dueLabels).toEqual(
@@ -25,11 +25,10 @@ describe("getDashboardPreview", () => {
     );
   });
 
-  it("filters projects and tasks by the selected account and project", () => {
-    const preview = getDashboardPreview("account_team_ops", "project_task_work");
+  it("filters tasks by the selected project while keeping the project list available", () => {
+    const preview = getDashboardPreview("project_task_work");
 
-    expect(preview.account.id).toBe("account_team_ops");
-    expect(preview.projects).toHaveLength(1);
+    expect(preview.projects).toHaveLength(3);
     expect(preview.project.id).toBe("project_task_work");
     expect(preview.tasks.every((task) => task.projectId === "project_task_work")).toBe(
       true,

@@ -4,13 +4,12 @@ import { getDashboardPreview } from "@/lib/workspace-preview";
 import styles from "./history-view.module.css";
 
 type HistoryViewProps = {
-  accountId?: string | null;
   projectId?: string | null;
 };
 
-export function HistoryView({ accountId, projectId }: HistoryViewProps) {
-  const preview = getDashboardPreview(accountId, projectId);
-  const selectionQuery = `account=${preview.account.id}&project=${preview.project.id}`;
+export function HistoryView({ projectId }: HistoryViewProps) {
+  const preview = getDashboardPreview(projectId);
+  const selectionQuery = `project=${preview.project.id}`;
 
   return (
     <main className="page-shell">
@@ -26,8 +25,7 @@ export function HistoryView({ accountId, projectId }: HistoryViewProps) {
               </p>
             </div>
             <div className="badge-row">
-              <span className="badge warm">{preview.account.name}</span>
-              <span className="badge neutral">{preview.project.name}</span>
+              <span className="badge warm">{preview.project.name}</span>
             </div>
             <Link className="button-secondary" href={`/today?${selectionQuery}`}>
               Back to today

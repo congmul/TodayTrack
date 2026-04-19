@@ -58,7 +58,7 @@ describe("ProjectCreateForm", () => {
     await user.click(screen.getByRole("button", { name: "Create project" }));
 
     expect(mockAuthorizedFetch).toHaveBeenCalledWith(
-      "/api/accounts/account_demo/projects",
+      "/api/projects",
       expect.objectContaining({
         method: "POST",
         headers: {

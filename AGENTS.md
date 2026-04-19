@@ -7,7 +7,7 @@ This file gives high-level instructions to coding agents operating in this repos
 TodayTrack is a mobile-first, PWA-enabled task management app.
 
 Core product shape:
-- account -> project -> task workflow
+- user -> project -> task workflow
 - today's tasks is a primary experience
 - task history powers analytics
 - mobile-first UX is required

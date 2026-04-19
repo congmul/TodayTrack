@@ -11,6 +11,7 @@ const mockCreateUserSession = vi.fn();
 const mockApplySessionCookie = vi.fn();
 const mockExchangeCodeForAzureProfile = vi.fn();
 const mockExchangeCodeForGoogleProfile = vi.fn();
+const mockResolveLandingForUser = vi.fn();
 
 vi.mock("@/lib/services/auth-service", async () => {
   const actual = await vi.importActual<typeof import("@/lib/services/auth-service")>(
@@ -40,12 +41,18 @@ vi.mock("@/lib/auth/google-oauth", () => ({
     mockExchangeCodeForGoogleProfile(...args),
 }));
 
+vi.mock("@/lib/services/workspace-service", () => ({
+  createWorkspaceService: () => ({
+    resolveLandingForUser: mockResolveLandingForUser,
+  }),
+}));
+
 describe("auth/callback route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("syncs the Microsoft user and redirects to today", async () => {
+  it("syncs the Microsoft user and redirects to the resolved landing page", async () => {
     mockExchangeCodeForAzureProfile.mockResolvedValue({
       providerUserId: "microsoft-user-123",
       email: "hyun@example.com",
@@ -56,12 +63,28 @@ describe("auth/callback route", () => {
       id: "microsoft:microsoft-user-123",
       provider: "microsoft",
       providerUserId: "microsoft-user-123",
+      selectedProjectId: null,
       email: "hyun@example.com",
       displayName: "J. Hyun",
       avatarUrl: null,
       lastLoginAt: "2026-04-18T08:00:00.000Z",
       createdAt: "2026-04-18T08:00:00.000Z",
       updatedAt: "2026-04-18T08:00:00.000Z",
+    });
+    mockResolveLandingForUser.mockResolvedValue({
+      path: "/today?project=project_task_home",
+      user: {
+        id: "microsoft:microsoft-user-123",
+        provider: "microsoft",
+        providerUserId: "microsoft-user-123",
+        selectedProjectId: "project_task_home",
+        email: "hyun@example.com",
+        displayName: "J. Hyun",
+        avatarUrl: null,
+        lastLoginAt: "2026-04-18T08:00:00.000Z",
+        createdAt: "2026-04-18T08:00:00.000Z",
+        updatedAt: "2026-04-18T08:00:00.000Z",
+      },
     });
     mockCreateUserSession.mockReturnValue({
       token: "session-token",
@@ -91,16 +114,21 @@ describe("auth/callback route", () => {
       displayName: "J. Hyun",
       avatarUrl: null,
     });
+    expect(mockResolveLandingForUser).toHaveBeenCalledWith(
+      "microsoft:microsoft-user-123",
+    );
     expect(mockCreateUserSession).toHaveBeenCalled();
     expect(mockApplySessionCookie).toHaveBeenCalledWith(
       expect.anything(),
       "session-token",
     );
     expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe("http://localhost:3000/today");
+    expect(response.headers.get("location")).toBe(
+      "http://localhost:3000/today?project=project_task_home",
+    );
   });
 
-  it("syncs the Google user and redirects to today", async () => {
+  it("syncs the Google user and redirects to the resolved landing page", async () => {
     mockExchangeCodeForGoogleProfile.mockResolvedValue({
       providerUserId: "google-user-123",
       email: "hyun@gmail.com",
@@ -111,12 +139,28 @@ describe("auth/callback route", () => {
       id: "google:google-user-123",
       provider: "google",
       providerUserId: "google-user-123",
+      selectedProjectId: null,
       email: "hyun@gmail.com",
       displayName: "J. Hyun",
       avatarUrl: "https://example.com/avatar.png",
       lastLoginAt: "2026-04-18T08:00:00.000Z",
       createdAt: "2026-04-18T08:00:00.000Z",
       updatedAt: "2026-04-18T08:00:00.000Z",
+    });
+    mockResolveLandingForUser.mockResolvedValue({
+      path: "/projects",
+      user: {
+        id: "google:google-user-123",
+        provider: "google",
+        providerUserId: "google-user-123",
+        selectedProjectId: null,
+        email: "hyun@gmail.com",
+        displayName: "J. Hyun",
+        avatarUrl: "https://example.com/avatar.png",
+        lastLoginAt: "2026-04-18T08:00:00.000Z",
+        createdAt: "2026-04-18T08:00:00.000Z",
+        updatedAt: "2026-04-18T08:00:00.000Z",
+      },
     });
     mockCreateUserSession.mockReturnValue({
       token: "session-token",
@@ -146,8 +190,13 @@ describe("auth/callback route", () => {
       displayName: "J. Hyun",
       avatarUrl: "https://example.com/avatar.png",
     });
+    expect(mockResolveLandingForUser).toHaveBeenCalledWith(
+      "google:google-user-123",
+    );
     expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe("http://localhost:3000/today");
+    expect(response.headers.get("location")).toBe(
+      "http://localhost:3000/projects",
+    );
   });
 
   it("redirects back to login when the state is invalid", async () => {

@@ -4,13 +4,12 @@ import { getDashboardPreview } from "@/lib/workspace-preview";
 import styles from "./today-view.module.css";
 
 type TodayViewProps = {
-  accountId?: string | null;
   projectId?: string | null;
 };
 
-export function TodayView({ accountId, projectId }: TodayViewProps) {
-  const preview = getDashboardPreview(accountId, projectId);
-  const selectionQuery = `account=${preview.account.id}&project=${preview.project.id}`;
+export function TodayView({ projectId }: TodayViewProps) {
+  const preview = getDashboardPreview(projectId);
+  const selectionQuery = `project=${preview.project.id}`;
 
   return (
     <main className="page-shell">

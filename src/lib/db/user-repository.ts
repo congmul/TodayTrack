@@ -19,13 +19,22 @@ export type UpsertUserRecordInput = {
   avatarUrl: string | null;
 };
 
+export type UpdateUserWorkspaceInput = {
+  selectedProjectId: string | null;
+};
+
 export interface UserRepository {
+  findById(userId: string): Promise<UserRecord | null>;
   findByProviderUserId(
     provider: AuthProviderValue,
     providerUserId: string,
   ): Promise<UserRecord | null>;
   create(input: UpsertUserRecordInput): Promise<UserRecord>;
   update(user: UserRecord, input: UpsertUserRecordInput): Promise<UserRecord>;
+  updateWorkspace(
+    user: UserRecord,
+    input: UpdateUserWorkspaceInput,
+  ): Promise<UserRecord>;
 }
 
 export class CosmosUserRepository implements UserRepository {
@@ -34,6 +43,25 @@ export class CosmosUserRepository implements UserRepository {
   constructor(private readonly client: CosmosClient) {
     const database = client.database(cosmosDatabaseId);
     this.usersContainer = database.container(cosmosContainers.users.id);
+  }
+
+  async findById(userId: string) {
+    const response = await this.usersContainer
+      .item(userId, userId)
+      .read<UserDocument>()
+      .catch((error: { code?: number }) => {
+        if (error?.code === 404) {
+          return null;
+        }
+
+        throw error;
+      });
+
+    if (!response || !response.resource) {
+      return null;
+    }
+
+    return response.resource;
   }
 
   async findByProviderUserId(
@@ -70,6 +98,7 @@ export class CosmosUserRepository implements UserRepository {
       kind: "user",
       provider: input.provider,
       providerUserId: input.providerUserId,
+      selectedProjectId: null,
       email: input.email,
       displayName: input.displayName,
       avatarUrl: input.avatarUrl,
@@ -103,6 +132,24 @@ export class CosmosUserRepository implements UserRepository {
 
     if (!resource) {
       throw new Error("User update returned no resource.");
+    }
+
+    return resource;
+  }
+
+  async updateWorkspace(user: UserRecord, input: UpdateUserWorkspaceInput) {
+    const updatedUser: UserDocument = {
+      ...user,
+      selectedProjectId: input.selectedProjectId,
+      updatedAt: new Date().toISOString(),
+    };
+
+    const { resource } = await this.usersContainer
+      .item(user.id, user.id)
+      .replace<UserDocument>(updatedUser);
+
+    if (!resource) {
+      throw new Error("User workspace update returned no resource.");
     }
 
     return resource;

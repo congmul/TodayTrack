@@ -10,6 +10,7 @@ const mockService = {
   updateProject: vi.fn(),
   deleteProject: vi.fn(),
 };
+const mockGetApiSessionUser = vi.fn();
 
 vi.mock("@/lib/services/project-service", async () => {
   const actual = await vi.importActual<typeof import("@/lib/services/project-service")>(
@@ -22,9 +23,14 @@ vi.mock("@/lib/services/project-service", async () => {
   };
 });
 
+vi.mock("@/lib/auth/api-user", () => ({
+  getApiSessionUser: (...args: unknown[]) => mockGetApiSessionUser(...args),
+}));
+
 describe("projects/[projectId] route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockGetApiSessionUser.mockResolvedValue({ id: "microsoft:user-123" });
   });
 
   it("returns a project detail payload", async () => {
@@ -39,6 +45,10 @@ describe("projects/[projectId] route", () => {
     });
 
     expect(response.status).toBe(200);
+    expect(mockService.getProject).toHaveBeenCalledWith(
+      "project_1",
+      "microsoft:user-123",
+    );
     await expect(response.json()).resolves.toEqual({
       project: {
         id: "project_1",
@@ -88,6 +98,14 @@ describe("projects/[projectId] route", () => {
     );
 
     expect(response.status).toBe(200);
+    expect(mockService.updateProject).toHaveBeenCalledWith(
+      "project_1",
+      "microsoft:user-123",
+      expect.objectContaining({
+        name: "Updated Launch",
+        status: "archived",
+      }),
+    );
     await expect(response.json()).resolves.toEqual({
       project: {
         id: "project_1",
@@ -111,5 +129,9 @@ describe("projects/[projectId] route", () => {
     );
 
     expect(response.status).toBe(204);
+    expect(mockService.deleteProject).toHaveBeenCalledWith(
+      "project_1",
+      "microsoft:user-123",
+    );
   });
 });

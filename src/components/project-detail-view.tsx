@@ -47,7 +47,7 @@ export function ProjectDetailView({ projectId }: ProjectDetailViewProps) {
             </div>
             <Link
               className="button-secondary"
-              href={`/projects?account=${project.accountId}&project=${project.id}`}
+              href={`/projects?project=${project.id}`}
             >
               Back to projects
             </Link>

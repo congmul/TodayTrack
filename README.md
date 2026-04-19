@@ -15,7 +15,7 @@ Technical implementation documents live in:
 Current product direction:
 - Mobile-first task management experience
 - PWA-enabled Next.js app
-- Account -> project -> today's tasks workflow
+- User -> project -> today's tasks workflow
 - Task history and completion analytics
 
 When making product or implementation decisions, use the plan in `docs/` as the source of truth first.

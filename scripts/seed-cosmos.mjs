@@ -26,16 +26,7 @@ const { database } = await client.databases.createIfNotExists({
   id: databaseId,
 });
 
-const { container: accountsContainer } = await database.containers.createIfNotExists(
-  {
-    id: "accounts",
-    partitionKey: {
-      paths: ["/id"],
-    },
-  },
-);
-
-await database.containers.createIfNotExists({
+const { container: usersContainer } = await database.containers.createIfNotExists({
   id: "users",
   partitionKey: {
     paths: ["/id"],
@@ -46,18 +37,24 @@ const { container: projectsContainer } = await database.containers.createIfNotEx
   {
     id: "projects",
     partitionKey: {
-      paths: ["/accountId"],
+      paths: ["/userId"],
     },
   },
 );
 
 const seedTimestamp = "2026-04-17T00:00:00.000Z";
-const accountId = "account_demo";
+const userId = "microsoft:demo-user";
 
-const accountDocument = {
-  id: accountId,
-  kind: "account",
-  name: "Demo Account",
+const userDocument = {
+  id: userId,
+  kind: "user",
+  provider: "microsoft",
+  providerUserId: "demo-user",
+  selectedProjectId: "project_habit_english",
+  email: "demo@example.com",
+  displayName: "Demo User",
+  avatarUrl: null,
+  lastLoginAt: seedTimestamp,
   createdAt: seedTimestamp,
   updatedAt: seedTimestamp,
 };
@@ -66,7 +63,7 @@ const projectDocuments = [
   {
     id: "project_habit_english",
     kind: "project",
-    accountId,
+    userId,
     name: "English Habit",
     description: "Practice reading every day.",
     type: "habit",
@@ -78,7 +75,7 @@ const projectDocuments = [
   {
     id: "project_task_home",
     kind: "project",
-    accountId,
+    userId,
     name: "Home Tasks",
     description: "Practical chores and errands.",
     type: "task",
@@ -90,7 +87,7 @@ const projectDocuments = [
   {
     id: "project_task_work",
     kind: "project",
-    accountId,
+    userId,
     name: "Work Ops",
     description: "Operational follow-ups and deadlines.",
     type: "task",
@@ -101,7 +98,7 @@ const projectDocuments = [
   },
 ];
 
-await accountsContainer.items.upsert(accountDocument);
+await usersContainer.items.upsert(userDocument);
 
 for (const project of projectDocuments) {
   await projectsContainer.items.upsert(project);
@@ -111,9 +108,9 @@ console.log(
   JSON.stringify(
     {
       databaseId,
-      containers: ["accounts", "users", "projects"],
+      containers: ["users", "projects"],
       insertedDocuments: 1 + projectDocuments.length,
-      accountId,
+      userId,
       projectIds: projectDocuments.map((project) => project.id),
     },
     null,

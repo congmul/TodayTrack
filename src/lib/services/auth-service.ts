@@ -10,6 +10,7 @@ export type AuthUserDto = {
   id: string;
   provider: AuthProviderValue;
   providerUserId: string;
+  selectedProjectId: string | null;
   email: string | null;
   displayName: string;
   avatarUrl: string | null;
@@ -97,6 +98,7 @@ function toAuthUserDto(user: Awaited<ReturnType<UserRepository["create"]>>) {
     id: user.id,
     provider: user.provider,
     providerUserId: user.providerUserId,
+    selectedProjectId: user.selectedProjectId,
     email: user.email,
     displayName: user.displayName,
     avatarUrl: user.avatarUrl,

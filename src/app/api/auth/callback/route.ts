@@ -10,6 +10,7 @@ import {
 } from "@/lib/auth/oauth-relay";
 import { applySessionCookie, createUserSession } from "@/lib/auth/session";
 import { createAuthService } from "@/lib/services/auth-service";
+import { createWorkspaceService } from "@/lib/services/workspace-service";
 
 export async function GET(request: NextRequest) {
   const state = request.nextUrl.searchParams.get("state");
@@ -48,8 +49,10 @@ export async function GET(request: NextRequest) {
       provider,
       ...profile,
     });
-    const session = await createUserSession(user);
-    const response = NextResponse.redirect(new URL("/today", request.url));
+    const workspaceService = createWorkspaceService();
+    const landing = await workspaceService.resolveLandingForUser(user.id);
+    const session = await createUserSession(landing.user);
+    const response = NextResponse.redirect(new URL(landing.path, request.url));
 
     applySessionCookie(response, session.token);
     clearOAuthCookies(response);

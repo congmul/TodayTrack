@@ -12,6 +12,7 @@ function createRepositoryStub(
   overrides: Partial<UserRepository> = {},
 ): UserRepository {
   return {
+    findById: vi.fn(),
     findByProviderUserId: vi.fn().mockResolvedValue(null),
     create: vi.fn(async (input: UpsertUserRecordInput) => createUserRecord(input)),
     update: vi.fn(async (user: UserRecord, input: UpsertUserRecordInput) => ({
@@ -30,6 +31,7 @@ function createUserRecord(input: UpsertUserRecordInput): UserRecord {
     kind: "user",
     provider: input.provider,
     providerUserId: input.providerUserId,
+    selectedProjectId: null,
     email: input.email,
     displayName: input.displayName,
     avatarUrl: input.avatarUrl,

@@ -1,12 +1,5 @@
-export type AccountPreview = {
-  id: string;
-  name: string;
-  userName: string;
-};
-
 export type ProjectPreview = {
   id: string;
-  accountId: string;
   name: string;
   description: string;
   type: "habit" | "task";
@@ -40,7 +33,6 @@ export type HistoryPreview = {
 };
 
 export type DashboardPreview = {
-  account: AccountPreview;
   project: ProjectPreview;
   projects: ProjectPreview[];
   summary: SummaryCard[];
@@ -48,15 +40,9 @@ export type DashboardPreview = {
   history: HistoryPreview[];
 };
 
-const accounts: AccountPreview[] = [
-  { id: "account_demo", name: "Demo Account", userName: "J. Hyun" },
-  { id: "account_team_ops", name: "Team Ops", userName: "Ops Lead" },
-];
-
 const projects: ProjectPreview[] = [
   {
     id: "project_habit_english",
-    accountId: "account_demo",
     name: "English Habit",
     description: "Practice reading every day.",
     type: "habit",
@@ -67,7 +53,6 @@ const projects: ProjectPreview[] = [
   },
   {
     id: "project_task_home",
-    accountId: "account_demo",
     name: "Home Tasks",
     description: "Practical chores and errands.",
     type: "task",
@@ -78,7 +63,6 @@ const projects: ProjectPreview[] = [
   },
   {
     id: "project_task_work",
-    accountId: "account_team_ops",
     name: "Work Ops",
     description: "Operational follow-ups and deadlines.",
     type: "task",
@@ -139,7 +123,7 @@ const tasks: PreviewTask[] = [
     projectId: "project_task_work",
     title: "Prepare weekly ops summary",
     note: "Task-project work should show urgency and deadlines clearly.",
-    assignee: "Ops Lead",
+    assignee: "J. Hyun",
     dueLabel: "Due today",
     priority: "High",
     tag: "Ops",
@@ -150,7 +134,7 @@ const tasks: PreviewTask[] = [
     projectId: "project_task_work",
     title: "Confirm vendor follow-up status",
     note: "Useful example for deadline-oriented operational work.",
-    assignee: "Ops Lead",
+    assignee: "J. Hyun",
     dueLabel: "Due tomorrow",
     priority: "Medium",
     tag: "Vendor",
@@ -281,52 +265,28 @@ const summaryByProject: Record<string, SummaryCard[]> = {
   ],
 };
 
-export function listAccounts() {
-  return accounts;
-}
-
-export function getAccount(accountId?: string | null) {
-  if (!accountId) {
-    return accounts[0];
-  }
-
-  return accounts.find((account) => account.id === accountId) ?? accounts[0];
-}
-
-export function listProjectsForAccount(accountId: string) {
-  return projects.filter((project) => project.accountId === accountId);
+export function listProjects() {
+  return projects;
 }
 
 export function getProjectPreview(projectId: string) {
   return projects.find((project) => project.id === projectId) ?? null;
 }
 
-export function getProjectSelection(
-  accountId?: string | null,
-  projectId?: string | null,
-) {
-  const account = getAccount(accountId);
-  const accountProjects = listProjectsForAccount(account.id);
-  const project =
-    accountProjects.find((candidate) => candidate.id === projectId) ??
-    accountProjects[0];
+export function getProjectSelection(projectId?: string | null) {
+  const project = projects.find((candidate) => candidate.id === projectId) ?? projects[0];
 
   return {
-    account,
-    projects: accountProjects,
+    projects,
     project,
   };
 }
 
-export function getDashboardPreview(
-  accountId?: string | null,
-  projectId?: string | null,
-): DashboardPreview {
-  const selection = getProjectSelection(accountId, projectId);
+export function getDashboardPreview(projectId?: string | null): DashboardPreview {
+  const selection = getProjectSelection(projectId);
   const projectTasks = tasks.filter((task) => task.projectId === selection.project.id);
 
   return {
-    account: selection.account,
     project: selection.project,
     projects: selection.projects,
     summary: summaryByProject[selection.project.id],

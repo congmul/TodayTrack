@@ -2,13 +2,12 @@
 
 ## Product Goal
 
-Build a mobile-first web app that lets a user manage tasks inside a project within an account.
+Build a mobile-first web app that lets a user manage tasks inside a project they own.
 
 The app should also be delivered as a PWA so it feels natural for daily use on mobile and can be installed on supported devices.
 
 Core user flow:
 - The user opens the app on mobile or desktop
-- The user selects an account
 - The user opens a project
 - The app shows today's tasks
 - The user toggles a task as done or not done
@@ -22,8 +21,8 @@ Core user flow:
 
 ### Must-Have V1
 
-- Account-level workspace
-- Project list inside an account
+- User-level workspace
+- Project list for the signed-in user
 - Task list for a selected project
 - "Today's tasks" view
 - Task status toggle: done / not done
@@ -70,8 +69,8 @@ Core user flow:
 - Prioritize quick toggle actions and tap-friendly layout
 - Support sticky actions or bottom navigation on mobile
 
-2. Account dashboard
-- Show projects for the current account
+2. Projects dashboard
+- Show projects for the current user
 - Show summary cards: overdue, due today, completed today, completion rate
 
 3. Project tasks page
@@ -150,7 +149,7 @@ project-root/
 
 ### Main Modules
 
-- Auth and account context
+- Auth and user context
 - Project management
 - Task management
 - Task history / audit events
@@ -160,7 +159,7 @@ project-root/
 ### Data Flow
 
 - UI calls internal API
-- API validates account and project access
+- API validates user and project access
 - API reads and writes documents in Azure Cosmos DB for NoSQL
 - Task status changes also create history events
 - Analytics page reads aggregated history data
@@ -172,28 +171,22 @@ project-root/
 
 The current direction is a Cosmos DB document model rather than a relational schema.
 
-### Account
-
-- id
-- kind = `account`
-- name
-- createdAt
-
 ### User
 
-- stored separately or embedded later depending on auth shape
 - id
-- accountId
+- kind = `user`
+- provider
+- providerUserId
+- selectedProjectId
 - email
 - name
-- role
 - createdAt
 
 ### Project
 
 - id
 - kind = `project`
-- accountId
+- userId
 - name
 - description
 - type
@@ -236,7 +229,7 @@ This history document set is important because your graph should be driven by re
 
 ### Core Endpoints
 
-- `GET /api/accounts/:accountId/projects`
+- `GET /api/projects`
 - `GET /api/projects/:projectId/tasks`
 - `GET /api/projects/:projectId/tasks/today`
 - `GET /api/tasks/:taskId`

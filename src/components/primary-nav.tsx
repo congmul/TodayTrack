@@ -45,7 +45,10 @@ function NavLinks({ currentPath, query }: NavLinksProps) {
 
 function PrimaryNavContent({ currentPath }: PrimaryNavProps) {
   const searchParams = useSearchParams();
-  const query = searchParams.toString();
+  const selectedProjectId = searchParams.get("project");
+  const query = selectedProjectId
+    ? new URLSearchParams({ project: selectedProjectId }).toString()
+    : "";
 
   return (
     <>

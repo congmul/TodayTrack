@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getApiSessionUser } from "@/lib/auth/api-user";
 import {
   ProjectServiceError,
   createProjectService,
@@ -11,11 +12,16 @@ type ProjectParams = {
 };
 
 export async function GET(_: Request, { params }: ProjectParams) {
+  const user = await getApiSessionUser();
+  if (!user) {
+    return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
+  }
+
   const { projectId } = await params;
   const service = createProjectService();
 
   try {
-    const project = await service.getProject(projectId);
+    const project = await service.getProject(projectId, user.id);
     return NextResponse.json({ project });
   } catch (error) {
     if (error instanceof ProjectServiceError) {
@@ -39,12 +45,17 @@ export async function GET(_: Request, { params }: ProjectParams) {
 }
 
 export async function PATCH(request: Request, { params }: ProjectParams) {
+  const user = await getApiSessionUser();
+  if (!user) {
+    return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
+  }
+
   const { projectId } = await params;
   const service = createProjectService();
 
   try {
     const body = await request.json();
-    const project = await service.updateProject(projectId, {
+    const project = await service.updateProject(projectId, user.id, {
       name: body?.name,
       description: body?.description,
       type: body?.type,
@@ -59,11 +70,16 @@ export async function PATCH(request: Request, { params }: ProjectParams) {
 }
 
 export async function DELETE(_: Request, { params }: ProjectParams) {
+  const user = await getApiSessionUser();
+  if (!user) {
+    return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
+  }
+
   const { projectId } = await params;
   const service = createProjectService();
 
   try {
-    await service.deleteProject(projectId);
+    await service.deleteProject(projectId, user.id);
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     return mapProjectError(error);
@@ -81,7 +97,6 @@ function mapProjectError(error: unknown) {
   if (error instanceof ProjectServiceError) {
     const statusMap: Record<ProjectServiceError["code"], number> = {
       INVALID_INPUT: 400,
-      ACCOUNT_NOT_FOUND: 404,
       PROJECT_NOT_FOUND: 404,
       PROJECT_NAME_CONFLICT: 409,
     };

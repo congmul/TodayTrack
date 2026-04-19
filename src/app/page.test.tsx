@@ -2,9 +2,16 @@ import Home from "@/app/page";
 
 const mockGetServerSession = vi.fn();
 const mockRedirect = vi.fn();
+const mockResolveLandingForUser = vi.fn();
 
 vi.mock("@/lib/auth/session", () => ({
   getServerSession: (...args: unknown[]) => mockGetServerSession(...args),
+}));
+
+vi.mock("@/lib/services/workspace-service", () => ({
+  createWorkspaceService: () => ({
+    resolveLandingForUser: mockResolveLandingForUser,
+  }),
 }));
 
 vi.mock("next/navigation", async () => {
@@ -35,13 +42,18 @@ describe("Home", () => {
     mockGetServerSession.mockResolvedValue({
       token: "session-token",
       user: {
-        id: "azure:azure-user-123",
+        id: "microsoft:user-123",
       },
       expiresAt: Date.now() + 1000,
+    });
+    mockResolveLandingForUser.mockResolvedValue({
+      path: "/today?project=project_task_home",
     });
 
     await Home();
 
-    expect(mockRedirect).toHaveBeenCalledWith("/today");
+    expect(mockRedirect).toHaveBeenCalledWith(
+      "/today?project=project_task_home",
+    );
   });
 });

@@ -6,12 +6,9 @@ import { PrimaryNav } from "@/components/primary-nav";
 import { authorizedFetch } from "@/lib/auth/client-auth";
 import styles from "./project-create-form.module.css";
 
-const defaultAccountId = "account_demo";
-
 type ProjectTypeOption = "" | "habit" | "task";
 
 export function ProjectCreateForm() {
-  const [accountId, setAccountId] = useState(defaultAccountId);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState<ProjectTypeOption>("");
@@ -19,7 +16,7 @@ export function ProjectCreateForm() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const canSubmit = Boolean(accountId.trim() && name.trim() && type) && !isSubmitting;
+  const canSubmit = Boolean(name.trim() && type) && !isSubmitting;
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -33,7 +30,7 @@ export function ProjectCreateForm() {
     setErrorMessage(null);
 
     try {
-      const response = await authorizedFetch(`/api/accounts/${accountId}/projects`, {
+      const response = await authorizedFetch("/api/projects", {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -91,19 +88,6 @@ export function ProjectCreateForm() {
 
         <section className={styles.formGrid}>
           <form className="task-card" onSubmit={handleSubmit}>
-            <div className={styles.fieldStack}>
-              <label className={styles.fieldLabel} htmlFor="accountId">
-                Account ID
-              </label>
-              <input
-                className={styles.fieldInput}
-                id="accountId"
-                name="accountId"
-                onChange={(event) => setAccountId(event.target.value)}
-                value={accountId}
-              />
-            </div>
-
             <div className={styles.fieldStack}>
               <label className={styles.fieldLabel} htmlFor="projectName">
                 Project name

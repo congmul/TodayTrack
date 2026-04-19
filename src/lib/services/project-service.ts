@@ -11,7 +11,7 @@ import {
 
 export type ProjectDto = {
   id: string;
-  accountId: string;
+  userId: string;
   name: string;
   description: string | null;
   type: ProjectTypeValue;
@@ -22,7 +22,6 @@ export type ProjectDto = {
 };
 
 export type CreateProjectInput = {
-  accountId: string;
   name: string;
   description?: string;
   type: string;
@@ -41,7 +40,6 @@ export class ProjectServiceError extends Error {
     message: string,
     public readonly code:
       | "INVALID_INPUT"
-      | "ACCOUNT_NOT_FOUND"
       | "PROJECT_NOT_FOUND"
       | "PROJECT_NAME_CONFLICT",
   ) {
@@ -53,31 +51,27 @@ export class ProjectServiceError extends Error {
 export class ProjectService {
   constructor(private readonly repository: ProjectRepository) {}
 
-  async listProjects(accountId: string) {
-    assertId(accountId, "accountId");
+  async listProjects(userId: string) {
+    assertId(userId, "userId");
 
-    const exists = await this.repository.accountExists(accountId);
-    if (!exists) {
-      throw new ProjectServiceError("Account not found.", "ACCOUNT_NOT_FOUND");
-    }
-
-    const projects = await this.repository.listByAccountId(accountId);
+    const projects = await this.repository.listByUserId(userId);
     return projects.map(toProjectDto);
   }
 
-  async getProject(projectId: string) {
+  async getProject(projectId: string, userId: string) {
     assertId(projectId, "projectId");
+    assertId(userId, "userId");
 
     const project = await this.repository.findById(projectId);
-    if (!project) {
+    if (!project || project.userId !== userId) {
       throw new ProjectServiceError("Project not found.", "PROJECT_NOT_FOUND");
     }
 
     return toProjectDto(project);
   }
 
-  async createProject(input: CreateProjectInput) {
-    assertId(input.accountId, "accountId");
+  async createProject(userId: string, input: CreateProjectInput) {
+    assertId(userId, "userId");
 
     const normalizedName = input.name?.trim();
     if (!normalizedName) {
@@ -89,26 +83,21 @@ export class ProjectService {
 
     const type = parseProjectType(input.type);
     const description = normalizeDescription(input.description);
-    const exists = await this.repository.accountExists(input.accountId);
-
-    if (!exists) {
-      throw new ProjectServiceError("Account not found.", "ACCOUNT_NOT_FOUND");
-    }
 
     const existingProject = await this.repository.findByName(
-      input.accountId,
+      userId,
       normalizedName,
     );
 
     if (existingProject) {
       throw new ProjectServiceError(
-        "A project with this name already exists in the account.",
+        "A project with this name already exists for this user.",
         "PROJECT_NAME_CONFLICT",
       );
     }
 
     const project = await this.repository.create({
-      accountId: input.accountId,
+      userId,
       name: normalizedName,
       description,
       type,
@@ -117,11 +106,12 @@ export class ProjectService {
     return toProjectDto(project);
   }
 
-  async updateProject(projectId: string, input: UpdateProjectInput) {
+  async updateProject(projectId: string, userId: string, input: UpdateProjectInput) {
     assertId(projectId, "projectId");
+    assertId(userId, "userId");
 
     const project = await this.repository.findById(projectId);
-    if (!project) {
+    if (!project || project.userId !== userId) {
       throw new ProjectServiceError("Project not found.", "PROJECT_NOT_FOUND");
     }
 
@@ -138,13 +128,13 @@ export class ProjectService {
 
       if (normalizedName !== project.name) {
         const existingProject = await this.repository.findByName(
-          project.accountId,
+          project.userId,
           normalizedName,
         );
 
         if (existingProject && existingProject.id !== project.id) {
           throw new ProjectServiceError(
-            "A project with this name already exists in the account.",
+            "A project with this name already exists for this user.",
             "PROJECT_NAME_CONFLICT",
           );
         }
@@ -187,11 +177,12 @@ export class ProjectService {
     return toProjectDto(updatedProject);
   }
 
-  async deleteProject(projectId: string) {
+  async deleteProject(projectId: string, userId: string) {
     assertId(projectId, "projectId");
+    assertId(userId, "userId");
 
     const project = await this.repository.findById(projectId);
-    if (!project) {
+    if (!project || project.userId !== userId) {
       throw new ProjectServiceError("Project not found.", "PROJECT_NOT_FOUND");
     }
 
@@ -255,7 +246,7 @@ function assertId(value: string, fieldName: string) {
 function toProjectDto(project: ProjectDocument): ProjectDto {
   return {
     id: project.id,
-    accountId: project.accountId,
+    userId: project.userId,
     name: project.name,
     description: project.description,
     type: project.type,

@@ -4,14 +4,13 @@ import { getProjectSelection } from "@/lib/workspace-preview";
 import styles from "./projects-view.module.css";
 
 type ProjectsViewProps = {
-  accountId?: string | null;
   projectId?: string | null;
 };
 
-export function ProjectsView({ accountId, projectId }: ProjectsViewProps) {
-  const selection = getProjectSelection(accountId, projectId);
+export function ProjectsView({ projectId }: ProjectsViewProps) {
+  const selection = getProjectSelection(projectId);
   const projects = selection.projects;
-  const selectionQuery = `account=${selection.account.id}&project=${selection.project.id}`;
+  const selectionQuery = `project=${selection.project.id}`;
 
   return (
     <main className="page-shell">
@@ -22,8 +21,8 @@ export function ProjectsView({ accountId, projectId }: ProjectsViewProps) {
               <span className="eyebrow">Projects</span>
               <h1 className="page-title">Project workspace</h1>
               <p className="section-copy">
-                Only projects related to the selected account are shown here so
-                the workspace stays focused and user-scoped.
+                Only your projects are shown here so the workspace stays focused
+                on your current work.
               </p>
             </div>
             <div className={styles.headerActions}>
@@ -59,7 +58,7 @@ export function ProjectsView({ accountId, projectId }: ProjectsViewProps) {
               </div>
               <Link
                 className={styles.detailLink}
-                href={`/projects/${project.id}?account=${selection.account.id}&project=${project.id}`}
+                href={`/projects/${project.id}?project=${project.id}`}
               >
                 Open project detail
               </Link>
