@@ -1,4 +1,5 @@
 import type { AuthUserDto } from "@/lib/services/auth-service";
+import { createSessionToken } from "@/lib/auth/session-token";
 
 export const authSessionCookieName = "todaytrack_session";
 export const authSessionTtlMs = 1000 * 60 * 60 * 8;
@@ -21,11 +22,14 @@ function getSessionStore() {
   return globalForAuthCache.todayTrackAuthSessions;
 }
 
-export function createCachedSession(user: AuthUserDto) {
+export async function createCachedSession(user: AuthUserDto) {
   pruneExpiredSessions();
 
-  const token = createOpaqueToken();
   const expiresAt = Date.now() + authSessionTtlMs;
+  const token = await createSessionToken({
+    user,
+    expiresAt,
+  });
   const session = {
     token,
     user,
@@ -71,10 +75,4 @@ function pruneExpiredSessions() {
       getSessionStore().delete(token);
     }
   }
-}
-
-function createOpaqueToken() {
-  const bytes = new Uint8Array(24);
-  crypto.getRandomValues(bytes);
-  return Buffer.from(bytes).toString("base64url");
 }

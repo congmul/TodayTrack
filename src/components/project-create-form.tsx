@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { PrimaryNav } from "@/components/primary-nav";
+import { authorizedFetch } from "@/lib/auth/client-auth";
 import styles from "./project-create-form.module.css";
 
 const defaultAccountId = "account_demo";
@@ -32,7 +33,7 @@ export function ProjectCreateForm() {
     setErrorMessage(null);
 
     try {
-      const response = await fetch(`/api/accounts/${accountId}/projects`, {
+      const response = await authorizedFetch(`/api/accounts/${accountId}/projects`, {
         method: "POST",
         headers: {
           "content-type": "application/json",

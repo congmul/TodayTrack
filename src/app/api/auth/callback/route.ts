@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
       provider,
       ...profile,
     });
-    const session = createUserSession(user);
+    const session = await createUserSession(user);
     const response = NextResponse.redirect(new URL("/today", request.url));
 
     applySessionCookie(response, session.token);
